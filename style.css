@@ -1,0 +1,116 @@
+* {
+    background-color: rgb(110, 9, 0);
+    background-image: "velrod.png";
+}
+
+a {
+    line-height: 140%;
+    font-size: 18px;
+}
+
+.red {
+    color: red;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 200px;
+    list-style: none;
+    padding: 0;
+}
+
+.round .spacer {
+    flex-grow: 1;
+}
+
+.round .spacer:first-child,
+.round .spacer:last-child {
+    flex-grow: .5;
+}
+
+.round .game-spacer {
+    flex-grow: 1;
+}
+
+.round .demi-spacer:first-child,
+.round .demi-spacer:last-child {
+    flex-grow: .5;
+}
+
+.round .game-demi-spacer {
+    flex-grow: 1;
+}
+
+li.game {
+    padding-left: 20px;
+}
+
+li.game.winner {
+    font-weight: bold;
+}
+
+li.game span {
+    /*float: right;*/
+    margin-right: 5px;
+}
+
+li.game-top {
+    border-bottom: 3px solid #aaa;
+}
+
+li.game-spacer {
+    border-right: 3px solid #aaa;
+    min-height: 40px;
+}
+
+li.game-bottom {
+    border-top: 3px solid #aaa;
+}
+
+#div1,
+#div2 {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    /*margin: 2px;*/
+    padding: 5px;
+    border: 1px solid black;
+}
+
+#div3 {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    /*margin: 2px;*/
+    padding: 5px;
+    border: 4px ridge rgba(186, 53, 0, 0.775);
+}
+
+img {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: center;
+    /*border: 1px solid black;*/
+}
+
+.liste {
+    background-color: rgb(75, 70, 80);
+    border: 4px ridge rgba(160, 96, 0, 0.823);
+    /* thick double */
+}
+
+.collapse {
+    display: collapse;
+}
+
+p {
+    color: red;
+}
