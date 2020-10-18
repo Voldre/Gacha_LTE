@@ -4,8 +4,7 @@
 
 class Perso
 {
-  protected $id,
-            $nom,
+  protected $nom,
             $atk,
             $def,
             $type_elmt,
@@ -28,7 +27,7 @@ class Perso
   const LEVEL_UP = 8;
   const PERSONNAGE_SOIGNE = 9;
 
-  public function __construct($heros,$list,$camp)
+  public function __construct($heros,$list,$camp, $stars =3) // Pas obligé de préciser le nombre d'étoiles
   {
     //$this->hydrate($heros);
 
@@ -38,7 +37,7 @@ class Perso
     $this->setType_elmt($list);
     $this->setNiveaux(1);
     $this->setExperiences(0);
-    $this->setStars(3);
+    $this->setStars($stars);
     $this->setPvm();
     $this->setPv($this->pvm);
     $this->setCamp($camp);
@@ -209,12 +208,6 @@ public function __toString()
     return $heures . ', ' . $minutes . ' et ' . $secondes;
   }
   */
-
-  public function id()
-  {
-    return $this->id;
-  }
-  
   public function nom()
   {
     return $this->nom;
@@ -265,20 +258,12 @@ public function __toString()
   
   // SETTER
 
-  public function setId($id)
-  {
-    $id = (int) $id;
-    
-    if ($id > 0)
-    {
-      $this->id = $id;
-    }
-  }
   public function setNom($nom)
   {
     if (is_string($nom))
     {
-      $this->nom = substr($nom, 0, -4);
+      //$this->nom = substr($nom, 0, -4); Plus besoin !
+      $this->nom = $nom;
     }
   }
   public function setAtk($list)

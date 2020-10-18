@@ -1,17 +1,30 @@
 <?php
-session_start();    // Toujours en premier
 
-require("Perso.php");
+$_SESSION['position'] = "debut";
+
+require("Perso.php"); // Classe en tout tout premier
+
+session_start();    // Toujours en premier MAIS après les classes
 
 if(isset($_GET['new_game']))
 {   
     session_unset(); 
 
-    header('Location : Intro.php');
+    $_SESSION['position'] = "debut";
+    $_SESSION['invocation'] = 0;
 
+
+    header('Location : Intro.php');
 } 
 
+require("Liste_Persos.php");
+
+
 $ma_liste_ennemis = [];
+
+if(isset($_POST['change']) ){
+    $_SESSION['ennemis'] = array();
+}
 
 if(isset($_POST['confirm'])){
     $ma_new_list = array();
@@ -22,6 +35,10 @@ if(isset($_POST['confirm'])){
 
     $isOK = true;
 
+    echo "ici";
+    print_r($_POST);
+
+    
     for($i = 0; $i <= 4; $i++){
         $variable = 'character:'+$i ;
         $ma_new_list = $_POST ;
@@ -58,64 +75,49 @@ if(isset($_POST['confirm'])){
         <p>Le jeu est prêt! Vous pouvez débuter</p>
 
         <?php
-        echo "ICII: ";
-        print_r($ma_new_list);
-
         foreach($ma_new_list as $key => $value){
 
             if($value*2 != 0 ){ // Vérifie que $value != 0 et $value != string, car string * 2 = 0
-                $liste_definitive[$value] = $key;
+                $liste_definitive[$value] = $_SESSION['personnages'][$key];
             }
         }
         $_SESSION['mes_persos'] = $liste_definitive;
         // On peut déclarer une variable de SESSION comme un TABLEAU en rajoutant []
 
-        echo "<br/><br/>";
-        print_r($liste_definitive);
-
-        // Pour rafraîchir les persos de la game d'avant
+        // Pour rafraîchir les persos de la Game d'avant
         unset($_SESSION['persos_totaux']);
 
-        header('Location: game.php');
+        header('Location: Game.php');
             }
 }
-    ?>
 
-<!DOCTYPE HTML>
-<html>
-<head>
-
-<?php     require("Menu.php") ;?>
-
-<meta charset="utf-8" />
-
-<link rel="stylesheet" href="mon_style.css"/>
-</head>
-
-<body>
-
-
-<?php
 function place() { ?>
 <div id="div2"></div>
 <?php } 
 
+    // Création des ennemis
+
 function place_enemy($x,$my_list) {
 
+    if(isset($_SESSION['ennemis']) ){
         $ma_liste_ennemis = $_SESSION['ennemis'];
+    }
     if( !isset($ma_liste_ennemis[$x]) && !isset($_POST['confirm']) ){
         $character = array_rand($my_list,1) ;
-        $character = $my_list[$character] . ".png" ;    
+        $_SESSION['ennemis'][$x] = $my_list[$character];
 
-        $_SESSION['ennemis'][$x] = $character;
+        $character = $my_list[$character];    
+
         global $ma_liste_ennemis ;
         $ma_liste_ennemis[$x] = $character ;
         }
+    else {
     $character = $ma_liste_ennemis[$x];
+    }
     #echo "Voici : ".$character;
     ?>
     <div id="div2">
-    <img src=<?= $character ?> id="drag2" width="70" height="70" />
+    <img src=<?= $character.".png" ?> id="drag2" width="70" height="70" />
 <?php 
 }
 
@@ -128,8 +130,6 @@ function place_for_character($i) {
     <?php                                                                      
 
 } 
-
-$list = array("Aria","Ether","Hearth","Kuro","Kzina","Silarius","Velrod","Yune","Zelcia","Zerito");
 
 function remove_element($array,$value) {
     foreach (array_keys($array, $value) as $key) {
@@ -173,20 +173,34 @@ function affiche_liste_persos($liste) {
 
     foreach($liste as $key => $value){ 
         ?>
-        <div id="div1"> <!-- ondrop="drop(event)" ondragover="allowDrop(event)"> -->
-        <img src=<?= $value ?> id="drag1" width="70" height="70" /><!-- draggable="true" ondragstart="drag(event)" -->
+
+<!-- TRANSITION & HOVER -->
+<div class="container" >
+    <div id="transition-hover" >
+        <div  id="div1"> <!-- ondrop="drop(event)" ondragover="allowDrop(event)"> -->
+        <img src=<?= $liste[$key]->nom().".png" ?> id="drag1" width="70" height="70" /><!-- draggable="true" ondragstart="drag(event)" -->
         <?php // $characterx = "character:".$i; ?>
-        <select name=<?= $character ?>>
+        <select name=<?= $key ?>>
+                    <!-- substr(0,-4) pour retirer ".png" de value -->
           <option value="0"></option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
         </select>      </div>   
+        <div id="transition-hover-content" >
+            <?php echo "<p class=\"infos_menu\">".$liste[$key]->nom().
+            "<br/> pv: ".$liste[$key]->pv()."/".$liste[$key]->pvm().
+            "<br/> atk: ".$liste[$key]->atk().
+            "<br/> def: ".$liste[$key]->def()."</p>" ; ?>
+        </div>
+    </div>
+</div> 
       <?php
     }
 }
 
+     require("header.php");
 
 if(!isset($_SESSION['personnages']) ){ ?>
     <form action ="Intro.php" method="GET">
@@ -207,11 +221,11 @@ else if( !isset($_SESSION['characters']) ){
 <h3>Choisissez les personnages à placer aux 4 emplacements puis validez votre choix.</h3>
 <input type="submit" name="confirm" value="Envoyer" />  
 
+<input type="submit" name="change" value="Changer de Tournois"/>
+
 </form>
-<?php }
-else{
-    header("Location: game.php");
-} ?>
+<?php } ?>
+
 
 <main id="tournament">
 <ul class="round round-1">
@@ -219,12 +233,18 @@ else{
 <?php
 
     for($i = 1 ; $i <= 4 ; $i++)
-    {
+    {          // **** (9) *2 en proba en % ! ****
+        if(rand(1,100) <= 9 + 9){
+            global $liste_no_o_4_stars;
+            $liste_use = $liste_no_o_4_stars;
+        }
+        else { global $liste_no_o ; 
+            $liste_use = $liste_no_o; }
         ?>
         <li class="spacer">&nbsp;</li>
         <li class="game game-top winner"><?php place_for_character($i) #echo "player n°".$i ;?> <span>79</span></li>
         <li class="game game-spacer">&nbsp;</li>
-        <li class="game game-bottom "><?php place_enemy($i,$list) #echo "player n°".$i*2 ;?> <span>48</span></li>
+        <li class="game game-bottom "><?php place_enemy($i,$liste_use) #echo "player n°".$i*2 ;?> <span>48</span></li>
         <li class="spacer">&nbsp;</li>
 <?php
     }
@@ -291,6 +311,7 @@ else{
     alert(data)
     }
     </script>
+
 
     </body>
 </html>

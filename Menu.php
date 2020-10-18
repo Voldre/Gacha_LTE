@@ -30,13 +30,14 @@ try {
             <?php
         }
 */
-
-
     }
     ?>
-    
-        
+ 
 <div class="menu">
+    <form method="GET">
+        <input type="submit" name="new_game" value="Lancer une nouvelle partie" class="main_button"/>
+    </form>
+
     <?php
     echo "<h5>Site réalisé par Voldre (12/10/2020 --> )</h5>";
 
@@ -50,10 +51,10 @@ try {
     }
     ?>
     
-    </h2>
 
+ 
     <?php
-    
+
     if (isset($_SESSION['id']) && isset($_SESSION['pseudo']))
     {
         echo"<h4><a href=\"page_deconnexion.php\" class=\"red\">Déconnexion</a></h4>";
@@ -63,14 +64,19 @@ try {
         echo"<h4><a href=\"page_connexion.php\" id=\"IDtest\">Connexion</a></h4>";
     }
 
+    if(isset($_SESSION['argent'])){
+    echo "Argent : ".$_SESSION['argent']." Gold.";
+    }
     ?>
-    <form method="GET">
 
-        <input type="submit" name="new_game" value="Relancer une partie"/>
+    <?php //if( isset($_SESSION['position']) && $_SESSION['position'] == "debut" ){ ?>
+    <br/><p>Invocations :</p>
+    <form action="Intro.php" method="GET">
+        <input type="hidden" name="summon" value="1"/>
+        <input type="submit" name="summon1" value="Lancer 1 invocation (2G)"/><br/><br/>
     </form>
-
-    <?php
-    echo "Argent : ";
-    ?>
-
-    </div>
+    <form action="Intro.php" method="GET">
+        <input type="hidden" name="summon" value="10"/>
+        <input type="submit" name="summon10" value="Lancer 10 invocations (18G)"/>
+    </form>
+</div>

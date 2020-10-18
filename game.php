@@ -35,14 +35,15 @@ sais pas écrire correctement un if!  if($value_of_fight = 0){ while $value_of_f
 
 */
 
-    $liste_complete = array("Aria"=>[2,-2,"terre"],"Ether"=>[-1,2,"terre"],"Hearth"=>[2,-1,"glace"],
-    "Kuro"=>[-1,2,"foudre"],"Kzina"=>[2,-1,"tenebre"],"Silarius"=>[3,-2,"tenebre"],
-    "Velrod"=>[5,2,"foudre"],"Yune"=>[1,0,"vent"],"Zelcia"=>[3,-2,"feu"],
-    "Zerito"=>[2,-1,"vent"]);
+require("Liste_Persos.php");
 
-require("Perso.php");
+require("Perso.php"); // Tout tout premier
 
-session_start();    // Toujours en premier
+require("header.php");
+
+session_start();    // Toujours en premier MAIS après les classes
+
+$_SESSION['position'] = "jeu";
 
 
 if(isset($_SESSION['persos_totaux']) ){
@@ -94,14 +95,19 @@ if(!isset($_POST['play'])){
     echo "persos :<br/>";
     print_r($_SESSION['mes_persos']);
     echo "ennemis :<br/>";
-    print_r($_SESSION['ennemis']);*/
+    print_r($_SESSION['ennemis']); */
 
-    // A vérifier si le if() est bien à mettre comme ça :
-    if(!isset($_SESSION['persos_totaux']) ) {
+    if(!isset($_SESSION['persos_totaux']) ) {            
+        /* mes persos sont déjà définis en objet dans l'intro (car stats obligatoire)
+
         foreach($_SESSION["mes_persos"] as $key => $value){
-            $mes_persos_o[$key] = new Perso($value,$liste_complete,0);   }
+           $mes_persos_o[$key] = new Perso($value,$liste_complete,0);   
+        } */
+        $mes_persos_o = $_SESSION["mes_persos"] ;
+
         foreach($_SESSION["ennemis"] as $key => $value){    //Last value = $CAMP
-            $persos_ennemis_o[$key] = new Perso($value,$liste_complete,1);  }
+            global $liste_complete_o;
+            $persos_ennemis_o[$key] = new Perso($value,$liste_complete_o,1);  }
 
         for($i=1; $i<=8; $i = $i+2){
         /*  $persos_totaux[0][0][$i] = $mes_persos_o[$i];
@@ -119,6 +125,8 @@ if(!isset($_POST['play'])){
 
         }
         $_SESSION['persos_totaux'] = $persos_totaux;
+        $_SESSION['winSince'] = 2;
+
 
     }
     ?>
@@ -158,6 +166,8 @@ else if($_POST['play'] == "Continuer"){
         if($persos_totaux[$round][$i]->camp() != $persos_totaux[$round][$i+1]->camp() ){
             $camp = combat($persos_totaux[$round][$i],$persos_totaux[$round][$i+1]);
             $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][$i+$camp];  
+            
+            $_SESSION['winSince'] = 1;
         }                                        // Rappel, "+$camp" fixe si c'est "0" ou "1" 
         else{                                // Donc si c'est nous (0) ou l'ennemi (1)
             $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][rand($i,$i+1)];
@@ -170,9 +180,9 @@ else if($_POST['play'] == "Continuer"){
                 // Récupération de PV car pas de combat.
             }
         }
-
+    /*
     echo "ICI là :<br/>";
-    print_r($persos_totaux[2]);
+    print_r($persos_totaux[2]);*/
 
     $_SESSION['persos_totaux'] = $persos_totaux; // Re-enregistré
 
@@ -191,7 +201,8 @@ if( isset($_POST['play']) && $_POST['play'] == "Finir"){
                     // Vérification des 2 camps
         if($persos_totaux[$round][1]->camp() != $persos_totaux[$round][2]->camp() ){
             $camp = combat($persos_totaux[$round][1],$persos_totaux[$round][2]);
-            $persos_totaux[$round+1] = $persos_totaux[$round][1+$camp];  
+            $persos_totaux[$round+1] = $persos_totaux[$round][1+$camp];
+            $_SESSION['winSince'] = 0;
         }                                
         else{                          
             $persos_totaux[$round+1] = $persos_totaux[$round][rand(1,2)];
@@ -207,13 +218,33 @@ if( isset($_POST['play']) && $_POST['play'] == "Finir"){
     <?php
     if($persos_totaux[3]->camp() == 0){ ?>
         <input type="submit" name="fin" value="Vous avez gagné!" />  
-    <?php }else { ?>
-        <input type="submit" name="fin" value="Vous avez perdu!" />  
-    <?php }
+
+        <h4>Vous avez reçu <?= 2 + $_SESSION['winSince'] ; ?> d'argents!</h4>
+    <?php $_SESSION['argent'] += 2 + $_SESSION['winSince'] ;
+    }           // winSince correspond au nb de tour depuis lequel on a gagné, 0, 1 ou 2
+    else { ?>
+    <input type="submit" name="fin" value="Vous avez perdu!" />  
+    <h4>Vous avez perdu 2 d'argents!</h4>
+    <?php $_SESSION['argent'] -= 2;  
+    }
+
+unset($_SESSION['persos_totaux']);
+unset($_SESSION['ennemis']);
+
+//print_r($_SESSION['personnages']);
+
+foreach($_SESSION['personnages'] as $key => $value){
+    $_SESSION['personnages'][$key]->setPv($_SESSION['personnages'][$key]->pvm()); }
+
      ?>
     </form>
 <?php
-} ?>
+}
+
+
+
+
+?>
 
 <main id="tournament">
 <ul class="round round-1">
@@ -373,9 +404,6 @@ function combat($perso1,$perso2){
 
 }
 
-
-
- require("Menu.php") 
 ?>
 
 </body>
