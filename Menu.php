@@ -39,7 +39,7 @@ try {
     </form>
 
     <?php
-    echo "<h5>Site réalisé par Voldre (12/10/2020 --> )</h5>";
+    echo "<p>Gacha : LTE</p><h5>Site réalisé par Voldre (12/10/2020 --> )</h5>";
 
     if (isset($_SESSION['id']) && isset($_SESSION['pseudo']))
         {
@@ -78,5 +78,10 @@ try {
     <form action="Intro.php" method="GET">
         <input type="hidden" name="summon" value="10"/>
         <input type="submit" name="summon10" value="Lancer 10 invocations (18G)"/>
+    </form>
+
+    <form action="Intro.php" method="GET">
+     <!--   <input type="hidden" name="free" value="10"/> -->
+        <input type="submit" name="free" value="Délivrer un personnage"/>
     </form>
 </div>

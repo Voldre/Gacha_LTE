@@ -45,6 +45,11 @@ session_start();    // Toujours en premier MAIS après les classes
 
 $_SESSION['position'] = "jeu";
 
+?>
+<audio autoplay controls loop  style="display: none;">
+  <source src="Valkyrie_Anatomia.mp3" type="audio/mpeg">
+  </audio>
+  <?php
 
 if(isset($_SESSION['persos_totaux']) ){
     $persos_totaux =  $_SESSION['persos_totaux'];
@@ -294,7 +299,7 @@ foreach($_SESSION['personnages'] as $key => $value){
         else{ 
             echo "<div id=\"div2\"></div>";
                  } ?>
-        <span>79</span></li>
+        </li>
         
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-spacer">&nbsp;</li>
@@ -310,7 +315,7 @@ foreach($_SESSION['personnages'] as $key => $value){
         else{ 
             echo "<div id=\"div2\"></div>";
                  } ?>
-        <span>48</span></li>
+        </li>
         <li class="spacer">&nbsp;</li>
 <?php
     }
@@ -331,7 +336,7 @@ foreach($_SESSION['personnages'] as $key => $value){
          else { 
             echo "<div id=\"div2\"></div>";
                  } ?>
-        <span>79</span></li>
+        <!--<span>79</span>--></li>
         
         <li class="game game-spacer">&nbsp;</li>
             
@@ -343,7 +348,7 @@ foreach($_SESSION['personnages'] as $key => $value){
          else { 
             echo "<div id=\"div2\"></div>";
                  } ?>
-        <span>48</span></li>
+        </li>
 
         <li class="spacer">&nbsp;</li>
 </ul>

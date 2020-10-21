@@ -6,6 +6,12 @@ require("Perso.php"); // Classe en tout tout premier
 
 session_start();    // Toujours en premier MAIS après les classes
 
+?>
+<audio autoplay controls loop  style="display: none;">
+  <source src="Twin_Saga.mp3" type="audio/mpeg">
+  </audio>
+  <?php
+
 if(isset($_GET['new_game']))
 {   
     session_unset(); 
@@ -226,7 +232,6 @@ else if( !isset($_SESSION['characters']) ){
 </form>
 <?php } ?>
 
-
 <main id="tournament">
 <ul class="round round-1">
 
@@ -242,9 +247,9 @@ else if( !isset($_SESSION['characters']) ){
             $liste_use = $liste_no_o; }
         ?>
         <li class="spacer">&nbsp;</li>
-        <li class="game game-top winner"><?php place_for_character($i) #echo "player n°".$i ;?> <span>79</span></li>
+        <li class="game game-top winner"><?php place_for_character($i) ?></li>
         <li class="game game-spacer">&nbsp;</li>
-        <li class="game game-bottom "><?php place_enemy($i,$liste_use) #echo "player n°".$i*2 ;?> <span>48</span></li>
+        <li class="game game-bottom "><?php place_enemy($i,$liste_use) ?> </li>
         <li class="spacer">&nbsp;</li>
 <?php
     }
@@ -259,13 +264,13 @@ else if( !isset($_SESSION['characters']) ){
         ?>
         <li class="spacer">&nbsp;</li>
         
-        <li class="game game-top winner"><?php place() #echo "player n°".$i ;?> <span>79</span></li>
+        <li class="game game-top winner"><?php place()?> </li>
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-spacer">&nbsp;</li>
-        <li class="game game-bottom "><?php place() #echo "player n°".$i*2 ;?> <span>48</span></li>
+        <li class="game game-bottom "><?php place() ?> </li>
         <li class="spacer">&nbsp;</li>
 
 <?php

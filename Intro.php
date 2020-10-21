@@ -12,16 +12,26 @@ Sinon erreur de classe "incomplète"
 Pour utiliser dans une fonction des variables qui sont déclarés ailleurs, il faut
 soit les envoyer en paramètre, soit les déclarer en global dans la fonction!
 
-Ex : Liste_Persos.php contient $liste_4_stars
-Pour l'utiliser dans une fonction, il faudra écrire :
+    Ex : Liste_Persos.php contient $liste_4_stars
+    Pour l'utiliser dans une fonction, il faudra écrire :
 
-function ma_fonction(){
-    global $liste_4stars;
-    $truc = $liste_4_stars... ;
-}
+    function ma_fonction(){
+        global $liste_4stars;
+        $truc = $liste_4_stars... ;
+    }
 
 count() comme python pour connaître le nombre d'éléments d'un tableau, ex :
     $nb_personnages = count($_SESSION["personnages"]);
+
+
+Lorsqu'on supprime un personnage (donc un array random d'une liste),
+il faut penser à renuméroté correctement les array().
+
+    Parce que la variable session personnage va toujours compter le nombre de persos et faire +1 à l'index.
+
+    Si 6 persos, et on supprime le 2e. Alors on aura 0,2,3,4,5.
+    Il reste 5 persos, donc le nouveau "6eme" aura l'index 5, et il écrasera l'ancien "6e".
+    Du coup, il faut bien penser à renuméro pour count() renvoie sur le dernier vrai index!
 
 */
     require("Perso.php"); // Avant le session_start() ! ! ! !
@@ -129,8 +139,86 @@ for($i=1; $i<= $invoc; $i++){
                 $persos_obtenus = invocation($invoc);
                 invocation_creation($persos_obtenus,$invoc);
                 }
-            }
+    }
 
+
+
+function affiche_liste_persos() {
+
+    foreach($_SESSION['personnages'] as $key => $value){ 
+        ?>
+
+<!-- TRANSITION & HOVER -->
+<div class="container" >
+    <div id="transition-hover" >
+        <div  id="div1"> <!-- ondrop="drop(event)" ondragover="allowDrop(event)"> -->
+        <img src=<?= $_SESSION['personnages'][$key]->nom().".png" ?> id="drag1" width="70" height="70" /><!-- draggable="true" ondragstart="drag(event)" -->
+        <?php // $characterx = "character:".$i; ?>
+        <select name=<?= $key ?>>
+                    <!-- substr(0,-4) pour retirer ".png" de value -->
+            <option value="0"></option>
+            <option value="1">Retirer</option>
+        </select>      </div>   
+        <div id="transition-hover-content" >
+            <?php echo "<p class=\"infos_menu\">".$_SESSION['personnages'][$key]->nom().
+            "<br/> pv: ".$_SESSION['personnages'][$key]->pv()."/".$_SESSION['personnages'][$key]->pvm().
+            "<br/> atk: ".$_SESSION['personnages'][$key]->atk().
+            "<br/> def: ".$_SESSION['personnages'][$key]->def()."</p>" ; ?>
+        </div>
+    </div>
+</div> 
+        <?php
+    }
+}
+
+    if(isset($_GET['free'])){
+        ?>
+        <form action="Intro.php" method="POST"> 
+        <?php
+        affiche_liste_persos();
+        ?>  <br/><br/>
+        <div  style="text-align : center;">
+        <input type="submit" name="leave"  style="text-align : center;"
+        value="Relacher les personnages sélectionnés"/>
+        <br/>
+        </form>
+        <?php
+    }
+
+    if(isset($_POST['leave'])){
+        global $liste_no_o_4_stars;
+        $prix_delete = 0;
+        foreach ($_POST as $label => $attribut){
+            //echo $label." est associé à : ".$attribut ."  " ;
+            if($attribut == 1){
+
+                    // Si le perso est un perso 4* ...
+        if(in_array($_SESSION['personnages'][$label]->nom(),$liste_no_o_4_stars)){
+                    $prix_delete++;
+                }
+
+                unset($_SESSION['personnages'][$label]);
+                $prix_delete++;
+            }
+        }
+        $_SESSION['argent'] += $prix_delete;
+        echo "<h4>Vous avez gagné ".$prix_delete." argent(s)!</h4>";
+        
+        // Remise au propre des index, pour qu'en cas d'invocations l'index ne soit pas re-écrasé.
+        $index = 0;
+        $liste_tempo = $_SESSION['personnages'];
+            // Evite qu'on retravaille sur la même liste, car confusion dans le foreach et la réaffectation
+        foreach($liste_tempo as $key => $value){
+            $_SESSION['personnages'][$index] = $_SESSION['personnages'][$key];
+            $index++;
+        }
+
+        for($i = $index; $i <= count($_SESSION['personnages']) ; $i++){
+            unset($_SESSION['personnages'][$i]); 
+        }       // On unset() tous les personnages ayant un index supérieur au dernier perso, jusqu'à avoir le nombre actuel de perso
+
+    }
+    //echo "<br/>";
 
 
     ?>
