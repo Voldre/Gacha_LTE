@@ -25,6 +25,14 @@ Une classe doit toujours avoir ses setters le plus général possible! setPvm($v
       $this->setType_elmt($list[$this->nom][2]);
       $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );
     }
+
+Bien penser à récupérer les variables SQL ATK_P, DEF_P et PVM_P, car elles correspondent aux vrais stats.
+
+    L'erreur est de prendre les stats génériques, donc de la table "Cartes_Personnages", mais aucun random() n'y est.
+    Autrement dit, sans ça, tous les persos "load" lors de la connexion auront les mêmes stats si même nom.
+    Ex : Zerito 1 et Zerito 2 auront les mêmes stats lors de la conenxion, alors qu'en BDD elles sont différentes.
+    Car Cartes_des_Joueurs liste les stats de chaque perso, et Cartes_Personnages liste les stats génériques des persos.
+
 */
 
 class Perso
