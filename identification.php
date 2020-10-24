@@ -25,6 +25,16 @@ Rappel de syntaxe UPDATE :
     $requete->closeCursor();
 
 
+Lorsqu'on donne un surnom à une table, ex : Cartes_des_Joueurs AS CdJ, alors on 
+ne peut plus appeler une/des colonnes avec le nom Cartes_des_Joueurs,
+
+    ex :
+        $reponse = $db->prepare('SELECT CdJ.*, CP.*
+                                FROM Cartes_des_Joueurs AS CdJ , Cartes_Personnages AS CP
+                                WHERE idJoueur = ?  AND CdJ.Nom_P = CP.NOM');
+
+        On ne peut pas écrire SELECT Carte_des_Joueurs.*, car la table a un surnom qui est CdJ !
+
 */
 
 require("Perso.php"); // Classe en tout tout premier
@@ -71,12 +81,12 @@ if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 
                 $req_nb->execute(array($_SESSION['id']));
                     $data = $req_nb->fetch(); */
 
-                function PersosFromSQL($id){
+                //function PersosFromSQL($id){
 
-                    $reponse = $db->prepare('SELECT Cartes_des_Joueurs.*, Cartes_Personnages.*
-                                            FROM Cartes_des_Joueurs , Cartes_Personnages 
-                                            WHERE idJoueur = ?  AND idPerso = Cartes_Personnages.id');
-                            $reponse->execute(array($id));
+                    $reponse = $db->prepare('SELECT CdJ.*, CP.*
+                                            FROM Cartes_des_Joueurs AS CdJ , Cartes_Personnages AS CP
+                                            WHERE idJoueur = ?  AND CdJ.Nom_P = CP.NOM');
+                            $reponse->execute(array($_SESSION['id']));
 
                     $_SESSION['personnages'] = array(); // Pour pas rajouter ceux d'avant
 
@@ -89,8 +99,8 @@ if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 
                         //print_r($persos_SQL);
                     }
                     $reponse->closeCursor();
-                }
-                PersosFromSQL($_SESSION['id']);
+                //}
+                //PersosFromSQL($_SESSION['id']);
 
             }
             else{   // SI le joueur débute (-100 argent), donc 0 personnage, alors SUMMON DU DEBUT ! :)
@@ -140,8 +150,9 @@ if(isset($_POST['Sauvegarder'])){
 
         foreach($_SESSION['personnages'] as $key => $value){         // Plus idPerso mais Nom_P, car c'est la key dans ['personnages']
             $requete = $db->prepare('INSERT INTO Cartes_des_Joueurs(idJoueur, Nom_P, PVM_P, ATK_P, DEF_P) VALUES (?, ?, ?, ?, ?)');
-            $requete->execute( array($_SESSION['id'], $key, $_SESSION['personnages'][$key]->pvm(),
-                $_SESSION['personnages'][$key]->atk(), $_SESSION['personnages'][$key]->def() ) );
+            $requete->execute( array($_SESSION['id'], $_SESSION['personnages'][$key]->nom(), // NOM car Nom_P dans la table
+                                $_SESSION['personnages'][$key]->pvm(), $_SESSION['personnages'][$key]->atk(), 
+                                 $_SESSION['personnages'][$key]->def() ) );
 
                 $requete->closeCursor();
             }

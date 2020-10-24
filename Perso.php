@@ -51,12 +51,12 @@ class Perso
 
     if($list_SQL != ""){
       
-      $this->setNom($list_SQL['NOM']);
+      $this->setNom($list_SQL['NOM']); 
       $this->setStars($list_SQL['STARS']);
-      $this->setAtk($list_SQL['ATK']);
-      $this->setDef($list_SQL['DEF']);
+      $this->setAtk($list_SQL['ATK_P']); // _P car spécifique au perso enregistré, on charge ses stats à lui
+      $this->setDef($list_SQL['DEF_P']); // _P car spécifique au perso enregistré, on charge ses stats à lui
       $this->setType_elmt($list_SQL['ELMT']);
-      $this->setPvm($list_SQL['PVM']);
+      $this->setPvm($list_SQL['PVM_P']); // _P car spécifique au perso enregistré, on charge ses stats à lui
 
     }
     else{

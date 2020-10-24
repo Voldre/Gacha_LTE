@@ -257,7 +257,6 @@ else if( !isset($_SESSION['characters']) ){
 <?php
     }
     ?>
-    <li class="spacer">&nbsp;</li>
 </ul>
 
 <ul class="round round-2">
