@@ -35,30 +35,21 @@ sais pas écrire correctement un if!  if($value_of_fight = 0){ while $value_of_f
 
 */
 
+require("Perso.php"); // Classe en tout tout premier
+
+session_start(); // Avant tout code HTML mais après les classes
+
 require("Liste_Persos.php");
 
-require("Perso.php"); // Tout tout premier
-
-require("header.php");
-
-session_start();    // Toujours en premier MAIS après les classes
-
-$_SESSION['position'] = "jeu";
 
 ?>
-<audio autoplay controls loop  style="display: none;">
+ <audio autoplay controls loop  style="display: none;">
   <source src="Valkyrie_Anatomia.mp3" type="audio/mpeg">
   </audio>
-  <?php
+<?php
 
 if(isset($_SESSION['persos_totaux']) ){
-    $persos_totaux =  $_SESSION['persos_totaux'];
-
-}
-
-function place() { ?>
-    <div id="div2"></div>
-    <?php } 
+    $persos_totaux =  $_SESSION['persos_totaux']; } 
     
 function place_character($perso,$camp) {
     if($camp == 0)
@@ -68,34 +59,41 @@ function place_character($perso,$camp) {
     else{
     show_details($perso/*[$round][$camp][$i]*/,"div2");  
     }
-    ?>
-    <!--
-    <div id="div2">
-    <img src= ?= //$character ?> id="drag2" width="70" height="70" /> -->
-    <?php }    
-?>
+}   
+function show_details($mon_perso,$ma_div)
+{ ?>
+<!-- TRANSITION & HOVER -->
+<div class="container">
+    <div id="transition-hover">
+        <span>
+    <div id=<?= $ma_div ?> ondrop="drop(event)" ondragover="allowDrop(event)">
+    <img src=<?= $mon_perso->nom().".png" ?> id="drag3" width="70" height="70" ?>
+        </span>
+        <div id="transition-hover-content">
+            <?php echo "<p class=\"infos\">".$mon_perso->nom().
+            "<br/> pv: ".$mon_perso->pv()."/".$mon_perso->pvm().
+            "<br/> atk: ".$mon_perso->atk().
+            "<br/> def: ".$mon_perso->def()."</p>" ; ?>
+        </div>
+    </div>
+</div>
+<?php }  
     
+require("header.php");
+?>
 
-<!DOCTYPE HTML>
-<html>
-<head>
-
-<meta charset="utf-8" />
-
-<link rel="stylesheet" href="mon_style.css"/>
-</head>
-
-<body>
 
 <h1>Tournament of the Thirty Choosen</h1>
 
-
-
 <form action="game.php" method="POST">
 <?php
+
+    // Si le tournoi n'a pas encore commencé !
+
 if(!isset($_POST['play'])){    
     $mes_persos_o = array();
     $persos_ennemis_o = array();
+
     /*
     echo "persos :<br/>";
     print_r($_SESSION['mes_persos']);
@@ -103,13 +101,13 @@ if(!isset($_POST['play'])){
     print_r($_SESSION['ennemis']); */
 
     if(!isset($_SESSION['persos_totaux']) ) {            
-        /* mes persos sont déjà définis en objet dans l'intro (car stats obligatoire)
+      /* mes persos sont déjà définis en objet dans l'intro (car stats obligatoire), donc on en refait pas des objets
 
         foreach($_SESSION["mes_persos"] as $key => $value){
-           $mes_persos_o[$key] = new Perso($value,$liste_complete,0);   
-        } */
+           $mes_persos_o[$key] = new Perso($value,$liste_complete,0);   } */
         $mes_persos_o = $_SESSION["mes_persos"] ;
 
+        // Les ennemis obtiennent leurs stats maintenant, car sinon c'est trop facile de choisir où mettre ses persos!
         foreach($_SESSION["ennemis"] as $key => $value){    //Last value = $CAMP
             global $liste_complete_o;
             $persos_ennemis_o[$key] = new Perso($value,$liste_complete_o,1);  }
@@ -127,101 +125,52 @@ if(!isset($_POST['play'])){
             $persos_totaux[0][$i+1] = $persos_ennemis_o[($i+1)/2]; 
 
             // 1 vs 2, 3 vs 4, 5 vs 6, 7 vs 8.
-
         }
         $_SESSION['persos_totaux'] = $persos_totaux;
-        $_SESSION['winSince'] = 2;
-
-
+        $_SESSION['winSince'] = 2; // Par défaut, on considère gagné depuis round 1 (donc après round 0)
+            
     }
     ?>
-<input type="submit" name="play" value="Commencer" />  
-
-<?php } 
+    <input type="submit" name="play" value="Commencer" />  
+<?php 
+}           
+            // A partir du commencement du Tournoi !
 
 else if($_POST['play'] == "Commencer"){
-    $round = 0;
-    $persos_totaux[1] = array(); // Super important car elle est pas effacé entre chaque game!
-    for($i=1; $i<=7; $i+=2){
 
-        $camp = combat($persos_totaux[$round][$i],$persos_totaux[$round][$i+1]);
-        $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][$i+$camp]; 
-            // Pareil, array 1,2,3,4  issu d'un array 1,3,5,7
-
-                            // $i+ $camp permet de faire "+1" si "ennemi"
-       // Cela ne nécessite même pas de redéfinir la fonction combat() car elle renvoie 0 ou 1!
-        }
-    
-    $_SESSION['persos_totaux'] = $persos_totaux; // Re-enregistré
+    $persos_totaux = combats_du_round(0, $_SESSION['persos_totaux']); // Round 0
 
     echo "<br/>Deuxième manche : <br/>";
-    //print_r($persos_totaux[1]);
      ?>
 <input type="submit" name="play" value="Continuer" />  
 <?php } 
 
-
-
 else if($_POST['play'] == "Continuer"){
-    $round = 1;
-    $persos_totaux[2] = array();
-    
-    for($i=1; $i<=3; $i += 2){
-                // Vérification des 2 camps
-        if($persos_totaux[$round][$i]->camp() != $persos_totaux[$round][$i+1]->camp() ){
-            $camp = combat($persos_totaux[$round][$i],$persos_totaux[$round][$i+1]);
-            $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][$i+$camp];  
-            
-            $_SESSION['winSince'] = 1;
-        }                                        // Rappel, "+$camp" fixe si c'est "0" ou "1" 
-        else{                                // Donc si c'est nous (0) ou l'ennemi (1)
-            $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][rand($i,$i+1)];
-                                                // Si même camp, choix random
-                // A changer plus tard, si "nous", on peut choisir?
-                // Ou par défaut celui avec le plus de PV? Sinon random?
-
-            $value = $persos_totaux[$round+1][($i+1)/2]->pv() + 5;
-            $persos_totaux[$round+1][($i+1)/2]->setPv($value) ;
-                // Récupération de PV car pas de combat.
-            }
-        }
-    /*
-    echo "ICI là :<br/>";
-    print_r($persos_totaux[2]);*/
-
-    $_SESSION['persos_totaux'] = $persos_totaux; // Re-enregistré
+   
+    $persos_totaux = combats_du_round(1, $_SESSION['persos_totaux']); // Round 1
 
     echo "<br/>Troisième manche : <br/>";
      ?>
 <input type="submit" name="play" value="Finir" />  
-<?php 
-} 
-?>
+<?php } ?>
+
 </form>
 
-<?php
-if( isset($_POST['play']) && $_POST['play'] == "Finir"){ 
-    $round = 2;
-    $persos_totaux[3] = array();
-                    // Vérification des 2 camps
-        if($persos_totaux[$round][1]->camp() != $persos_totaux[$round][2]->camp() ){
-            $camp = combat($persos_totaux[$round][1],$persos_totaux[$round][2]);
-            $persos_totaux[$round+1] = $persos_totaux[$round][1+$camp];
-            $_SESSION['winSince'] = 0;
-        }                                
-        else{                          
-            $persos_totaux[$round+1] = $persos_totaux[$round][rand(1,2)];
-            $value = $persos_totaux[$round+1]->pv() + 5;
-            $persos_totaux[$round+1]->setPv($value) ;
-            }
-    echo "<br/> Le gagnant est : ".$persos_totaux[3]->nom()." dans le camp ".$persos_totaux[3]->camp();
+<?php   // Fin du tournoi
 
-    $_SESSION['persos_totaux'][3] = $persos_totaux[3]; // Re-enregistré
+if( isset($_POST['play']) && $_POST['play'] == "Finir"){ 
+    
+    $persos_totaux = combats_du_round(2, $_SESSION['persos_totaux']); // Round 2
+
+    // L'index du gagnant doit quand même être [1], même s'il est tout seul, pas juste $persos[3]
+                        // Parce que la fonction retourne toujours un double tableau [$round][$index] !
+    echo "<br/> Le gagnant est : ".$persos_totaux[3][1]->nom()." dans le camp ".$persos_totaux[3][1]->camp();
     
     ?>
     <form action="index.php" method="post">
     <?php
-    if($persos_totaux[3]->camp() == 0){ ?>
+
+    if($persos_totaux[3][1]->camp() == 0){ ?>
         <input type="submit" name="fin" value="Vous avez gagné!" />  
 
         <h4>Vous avez reçu <?= 2 + $_SESSION['winSince'] ; ?> d'argents!</h4>
@@ -236,18 +185,14 @@ if( isset($_POST['play']) && $_POST['play'] == "Finir"){
 unset($_SESSION['persos_totaux']);
 unset($_SESSION['ennemis']);
 
-//print_r($_SESSION['personnages']);
-
+// Heal des personnages
 foreach($_SESSION['personnages'] as $key => $value){
     $_SESSION['personnages'][$key]->setPv($_SESSION['personnages'][$key]->pvm()); }
-
      ?>
+
     </form>
-<?php
+    <?php
 }
-
-
-
 
 ?>
 
@@ -260,9 +205,9 @@ foreach($_SESSION['personnages'] as $key => $value){
         ?>
         <li class="spacer">&nbsp;</li>
                                                         <?php //$this-> camp déjà connu ?>
-        <li class="game game-top winner"><?php place_character($persos_totaux[0][$i],0); ?> <span>79</span></li>
+        <li class="game game-top winner"><?php place_character($persos_totaux[0][$i],0); ?> </li>
         <li class="game game-spacer">&nbsp;</li>
-        <li class="game game-bottom "><?php place_character($persos_totaux[0][$i+1],1); ?> <span>48</span></li>
+        <li class="game game-bottom "><?php place_character($persos_totaux[0][$i+1],1); ?> </li>
         <li class="spacer">&nbsp;</li>
                     <?php } ?>
     <li class="spacer">&nbsp;</li>
@@ -353,9 +298,10 @@ foreach($_SESSION['personnages'] as $key => $value){
         <li class="spacer">&nbsp;</li>
 </ul>
 <ul class="round round-4">
-        <?php
-        if( isset($persos_totaux[3]) ){ 
-            place_character($persos_totaux[3],$persos_totaux[3]->camp());
+        <?php         // L'index du gagnant doit quand même être [1], même s'il est tout seul, pas juste $persos[3]
+                            // Parce que la fonction retourne toujours un double tableau [$round][$index] !
+        if( isset($persos_totaux[3][1]) ){ 
+            place_character($persos_totaux[3][1],$persos_totaux[3][1]->camp());
             } 
             else { 
             echo "<div id=\"div2\"></div>";
@@ -364,31 +310,12 @@ foreach($_SESSION['personnages'] as $key => $value){
 
 
 <?php
-function show_details($mon_perso,$ma_div)
-{ ?>
-<!-- TRANSITION & HOVER -->
-<div class="container">
-    <div id="transition-hover">
-        <span>
-    <div id=<?= $ma_div ?> ondrop="drop(event)" ondragover="allowDrop(event)">
-    <img src=<?= $mon_perso->nom().".png" ?> id="drag3" width="70" height="70" ?>
-        </span>
-        <div id="transition-hover-content">
-            <?php echo "<p class=\"infos\">".$mon_perso->nom().
-            "<br/> pv: ".$mon_perso->pv()."/".$mon_perso->pvm().
-            "<br/> atk: ".$mon_perso->atk().
-            "<br/> def: ".$mon_perso->def()."</p>" ; ?>
-        </div>
-    </div>
-</div>
-<?php } 
-
 
 function combat($perso1,$perso2){
 
     $value_of_fight = ($perso1->atk() - $perso2->atk()) + ($perso1->def() - $perso2->def()) + ($perso1->pv() - $perso2->pv())/4;
     echo "<br/>Value of Fight :".$value_of_fight;
-    //if($value_of_fight == 0){ // J'ai oublié le double égale!
+    //if($value_of_fight == 0){ // J'ai oublié le double égale! ALORS QUE LE IF EST USELESS ! 20m perdus
     while($value_of_fight == 0){
         $value_of_fight = rand(-10,10);
     } //}
@@ -402,14 +329,51 @@ function combat($perso1,$perso2){
     else if($value_of_fight < 0){
         $value = $perso2->pv() - ($perso1->atk() - $perso2->def() ) *(1 + $perso1->atk() / $perso2->atk() );
         $perso2->setPv($value);
-        $perso1->setPv(0);
-        
+        $perso1->setPv(0);     
         return 1;
     }
+}
+                        // Obliger d'envoyer les persos, car variable GLOBAL, eh oui, c'est une fonction!
+function combats_du_round($round, $persos_totaux){
+    $persos_totaux[$round + 1] = array(); // Au cas où, on vide l'array qu'on va remplir
 
+    $challengers = 8 / ($round+1); // <-- car $round commence à 0 
+
+    for($i=1; $i<= $challengers ; $i += 2){
+
+        // RAPPEL : au round + 1, on a index 1,2,3,4 si on débute avec 8 valeurs,
+            // Pour faire ça, sachant que $i varie de 2 en 2, on doit faire [($i+1) / 2] <-- $persos_totaux[$round+1][]
+            // Donnant donc 1+1 / 2, puis 3+1 / 2, etc... Donc 1,2,3,4 en sortie de 1,3,5,7 !
+
+                // Vérification des 2 camps
+                
+        if($persos_totaux[$round][$i]->camp() != $persos_totaux[$round][$i+1]->camp() ){
+            $camp = combat($persos_totaux[$round][$i],$persos_totaux[$round][$i+1]);
+            $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][$i+$camp];     
+
+            $_SESSION['winSince'] = 2 - $round; // 2 - 0, puis 2-1 et sinon 2-2
+
+        }                                        // Rappel, "+$camp" est fixe si c'est "0" ou "1" 
+        else{                                // Donc si c'est nous (0) ou l'ennemi (1)
+            $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][rand($i,$i+1)];
+                                                    // Si même camp, choix random
+
+                // A changer plus tard, si "nous", on peut choisir?
+                // Ou par défaut celui avec le plus de PV? Sinon random?
+
+            $value = $persos_totaux[$round+1][($i+1)/2]->pv() + 5;
+            $persos_totaux[$round+1][($i+1)/2]->setPv($value) ;
+                // Récupération de PV car pas de combat.
+        }
+    }
+    $_SESSION['persos_totaux'] = $persos_totaux; // Re-enregistré 
+
+    return $persos_totaux; // Comme ça on utilise $persos_totaux dehors si on veut
 }
 
+    // Avant d'utiliser combats_du_round() on avait 415 lignes
 ?>
 
 </body>
+
 </html>

@@ -1,6 +1,31 @@
 <?php
 
+/*
+Une classe doit toujours avoir ses setters le plus général possible! setPvm($value) { verif... $this->pvm = $value;}
 
+    Même si on pense toujours mettre une valeur précise (ex : $list[$nom][1]), on doit toujours globaliser!
+    Parce que le jour où on appelle le setter en dehors de ce cas, on est foutu! Car le setter comprend que des LISTES
+    Qui plus est, avec une structure d'index précise.
+
+    Moi je déclare mes objets soit à la mano, soit en SQL, du coup mes setters doivent être global, et l'un trouvera
+    sa valeur dans $list, l'autre dans $liste_SQL, c'est tout!
+    
+    if($list_SQL != ""){
+      
+      $this->setNom($list_SQL['NOM']);
+      $this->setStars($list_SQL['STARS']);
+      $this->setAtk($list_SQL['ATK']);    ...
+      $this->setPvm($list_SQL['PVM']);
+
+    }
+    else{
+      $this->setNom($heros);
+      $this->setStars($stars);
+      $this->setAtk(8 + $list[$this->nom][0] + rand(-1,1) );
+      $this->setType_elmt($list[$this->nom][2]);
+      $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );
+    }
+*/
 
 class Perso
 {
@@ -19,29 +44,34 @@ class Perso
   const CEST_MOI = 1; // Constante renvoyée par la méthode `frapper` si on se frappe soit-même.
   const PERSONNAGE_TUE = 2; // Constante renvoyée par la méthode `frapper` si on a tué le personnage en le frappant.
   const PERSONNAGE_FRAPPE = 3; // Constante renvoyée par la méthode `frapper` si on a bien frappé le personnage.
-  const PERSONNAGE_ENSORCELE = 4; // Constante renvoyée par la méthode `lancerUnSort` (voir classe Magicien) si on a bien ensorcelé un personnage.
-  const PAS_DE_MAGIE = 5; // Constante renvoyée par la méthode `lancerUnSort` (voir classe Magicien) si on veut jeter un sort alors que la magie du magicien est à 0.
-  const PERSO_ENDORMI = 6; // Constante renvoyée par la méthode `frapper` si le personnage qui veut frapper est endormi.
-  
-  const PEUT_PAS_FRAPPER = 7;
-  const LEVEL_UP = 8;
-  const PERSONNAGE_SOIGNE = 9;
 
-  public function __construct($heros,$list,$camp, $stars =3) // Pas obligé de préciser le nombre d'étoiles
-  {
+  public function __construct($heros,$list,$camp, $stars =3, $list_SQL = "") // Pas obligé de préciser le nombre d'étoiles
+  {                                                        // Pas obliger de passer par une requête SQL
     //$this->hydrate($heros);
 
-    $this->setNom($heros);
-    $this->setAtk($list);
-    $this->setDef($list);
-    $this->setType_elmt($list);
-    $this->setNiveaux(1);
-    $this->setExperiences(0);
-    $this->setStars($stars);
-    $this->setPvm();
+    if($list_SQL != ""){
+      
+      $this->setNom($list_SQL['NOM']);
+      $this->setStars($list_SQL['STARS']);
+      $this->setAtk($list_SQL['ATK']);
+      $this->setDef($list_SQL['DEF']);
+      $this->setType_elmt($list_SQL['ELMT']);
+      $this->setPvm($list_SQL['PVM']);
+
+    }
+    else{
+      $this->setNom($heros);
+      $this->setStars($stars);
+      $this->setAtk(8 + $list[$this->nom][0] + rand(-1,1) );
+      $this->setDef(8 + $list[$this->nom][1] + rand(-1,1) );
+      $this->setType_elmt($list[$this->nom][2]);
+      $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );
+    }
+      // Commun peu importe la méthode
+    //$this->setNiveaux(1);
+    //$this->setExperiences(0);
     $this->setPv($this->pvm);
     $this->setCamp($camp);
-
   }
 
  // Méthodes Magiques ! 
@@ -70,74 +100,6 @@ public function __toString()
   return $this->donnees;
 }
 
-/*
-  public function estEndormi()
-  {
-    return $this->timeEndormi > time();
-  }
- 
-  public function estFatigue()
-  {
-      // est fatigéu si le temps d'attente pas passé, ET si il a envoyées 3 ou + de coups
-    return $this->timeWait > time() && $this->coups_envoyees >= 2 + $this->niveaux;
-  }
-
-  public function updateFatigue()
-  {
-    if ($this->timeWait < time())
-    {     // On réinitialise le nombre de coups_envoyees à chaque fois qu'on a assez attendu
-              // Exemple : 2 coups puis on revient le lendemain, alors on a le droit à 3 coups et pas 1 seul
-    $this->coups_envoyees = 0;    // Car ça serait ridicule de faire "3 puis repos", et pas "3" alors que les 2 coups c'était hier
-    }
-  }
-
-
-  public function frapper(Personnage $perso)
-  {
-    if ($perso->id == $this->id)
-    {
-      return self::CEST_MOI;
-    }
-    
-    
-    // Si le personnage a trop combattu
-    
-    if ($this->estFatigue())
-    {
-      return self::PEUT_PAS_FRAPPER;
-    }
-    else
-    { 
-
-      $this->updateFatigue();
-
-        // Alors on attend 6 heures avant de pouvoir recombattre
-      $this->timeWait = time() + 6; // une minute //* 3600;
-      $this->coups_envoyees += 1;
-
-      $this->experiences += 10;
-      $this->isLevelUp();
-    }
-
-
-    if ($this->estEndormi())
-    {
-      return self::PERSO_ENDORMI;
-    }
-
-
-    // Si c'est un rôdeur, on l'empoisonne !
-    if ($this->type == "rodeur")
-    {
-      $this->empoisonner($perso);
-    }
-
-    // On indique au personnage qu'il doit recevoir des dégâts.
-    // Puis on retourne la valeur renvoyée par la méthode : self::PERSONNAGE_TUE ou self::PERSONNAGE_FRAPPE.
-    return $perso->recevoirDegats();
-  }
-  */
-
   public function hydrate(array $donnees)
   {
     foreach ($donnees as $key => $value)
@@ -150,64 +112,9 @@ public function __toString()
       }
     }
   }
-  /*
-  public function nomValide()
-  {
-    return !empty($this->nom);
-  }
   
-  public function recevoirDegats()
-  {
-    $this->degats += 5;
+  // ACCESSEUR
 
-    $this->experiences += 4;
-    $this->isLevelUp();
-
-    // Si on a 100 de dégâts ou plus, on supprime le personnage de la BDD.
-    if ($this->degats >= 100)
-    {
-      return self::PERSONNAGE_TUE;
-
-    }
-    
-    // Sinon, on se contente de mettre à jour les dégâts du personnage.
-    return self::PERSONNAGE_FRAPPE;
-  }
-  
-  public function reveil()
-  {
-    $secondes = $this->timeEndormi;
-    $secondes -= time();
-    
-    $heures = floor($secondes / 3600);
-    $secondes -= $heures * 3600;
-    $minutes = floor($secondes / 60);
-    $secondes -= $minutes * 60;
-    
-    $heures .= $heures <= 1 ? ' heure' : ' heures';
-    $minutes .= $minutes <= 1 ? ' minute' : ' minutes';
-    $secondes .= $secondes <= 1 ? ' seconde' : ' secondes';
-    
-    return $heures . ', ' . $minutes . ' et ' . $secondes;
-  }
-
-  public function repos()
-  {
-    $secondes = $this->timeWait;
-    $secondes -= time();
-    
-    $heures = floor($secondes / 3600);
-    $secondes -= $heures * 3600;
-    $minutes = floor($secondes / 60);
-    $secondes -= $minutes * 60;
-    
-    $heures .= $heures <= 1 ? ' heure' : ' heures';
-    $minutes .= $minutes <= 1 ? ' minute' : ' minutes';
-    $secondes .= $secondes <= 1 ? ' seconde' : ' secondes';
-    
-    return $heures . ', ' . $minutes . ' et ' . $secondes;
-  }
-  */
   public function nom()
   {
     return $this->nom;
@@ -266,22 +173,20 @@ public function __toString()
       $this->nom = $nom;
     }
   }
-  public function setAtk($list)
+  public function setAtk($value)
   {
-    $atk = 8 + $list[$this->nom][0] + rand(-1,1) ;
-    $this->atk = $atk;
+    $this->atk = (int) $value;
   }
   
-  public function setDef($list)
+  public function setDef($value)
   {
-    $def = 8 + $list[$this->nom][1] + rand(-1,1) ;
-    $this->def = $def;
+    $this->def = (int) $value;
   }
   
 
-  public function setType_elmt($list)
+  public function setType_elmt($value)
   {
-    $this->type_elmt = $list[$this->nom][2];
+    $this->type_elmt = (string) $value;
   }
 /*
   public function setTimeWait($time)
@@ -324,10 +229,9 @@ public function __toString()
     else if($value < 0){ $this->pv = 0; }
     else{  $this->pv = (int) $value; }
   }
-  public function setPvm()
+  public function setPvm($value)
   {
-    $pvm = 10 + $this->stars * 2 + rand(-2,2);
-    $this->pvm = $pvm;
+    $this->pvm = (int) $value;
   }
   public function setCamp($camp)
   {

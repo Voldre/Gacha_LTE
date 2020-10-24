@@ -33,13 +33,24 @@ il faut penser à renuméroté correctement les array().
     Il reste 5 persos, donc le nouveau "6eme" aura l'index 5, et il écrasera l'ancien "6e".
     Du coup, il faut bien penser à renuméro pour count() renvoie sur le dernier vrai index!
 
+
+Situation non prévu : Supprimer un personnage au milieu du combat !
+
+    C'est une solution intéressante pour éviter de perdre 2 d'argents si on sait qu'on a lose.
+    MAIS, involontairement, j'ai rendue cette pratique défavorable, car si tu quittes un tournoi
+    précipitamment (donc triche), eh bien tes personnnages ne sont pas soignés!
+    Autrement dit, tricher pour pas perdre 2 argents <=> Ne pas être soigné, donc persos inutilisables
+    jusqu'à la fin du prochain tournoi fini !
+
 */
+
     require("Perso.php"); // Avant le session_start() ! ! ! !
-    require("header.php");
 
     session_start();
 
     include("Liste_Persos.php");
+
+    require("header.php");
 
     function remove_element($array,$value) {
         foreach (array_keys($array, $value) as $key) {
@@ -57,13 +68,13 @@ il faut penser à renuméroté correctement les array().
             <h3> Voici la liste des personnages que vous avez obtenus! </h3>
         <?php
         
-        for($i = 1; $i <= $x; $i++){ 
-                
+        for($i = 1; $i <= $x; $i++)
+        {         
             // Choix aléatoires des listes selon la rareté!
             if(rand(1,100) <= 9){
                 global $liste_4_stars; 
             // global A DECLARER POUR UTILISER LES VARIABLES de Liste_Persos.php
-            // Car se sont des fonctions 
+            // Car on utilise des variables globales dans une fonction (ici invocation()).
                 $liste_use = $liste_4_stars;
             }
             else { global $list; $liste_use = $list; }
@@ -78,14 +89,13 @@ il faut penser à renuméroté correctement les array().
             //$liste_restante = remove_element($liste_restante,$my_list[$character]);
     
             $character .= ".png" ;
-    
             $ma_liste[$i] = $character ;
             ?>
             <img src=<?= $character ?> id="drag1" width="140" height="140" /><!-- draggable="true" ondragstart="drag(event)" -->
-    
-          <?php                     } ?> 
-        
+        <?php                     
+        } ?>         
         </div> 
+
         <?php 
          return $ma_liste;
         }
@@ -97,9 +107,9 @@ function invocation_creation($ma_liste_de_persos, $invoc){
     $nb_personnages = count($_SESSION["personnages"]);
     } else { $nb_personnages = 0;}
 
-for($i=1; $i<= $invoc; $i++){
+for($i=1; $i<= $invoc; $i++){           // on retire .png !
     $ma_liste_de_persos[$i] = substr($ma_liste_de_persos[$i],0,-4);
-    global $liste_complete_o;     
+    global $liste_complete_o;                                                           // camp = joueur (0)
     $_SESSION["personnages"][$nb_personnages + $i] = new Perso($ma_liste_de_persos[$i],$liste_complete_o,0);
                             }
 }
@@ -204,16 +214,19 @@ function affiche_liste_persos() {
         $_SESSION['argent'] += $prix_delete;
         echo "<h4>Vous avez gagné ".$prix_delete." argent(s)!</h4>";
         
+
         // Remise au propre des index, pour qu'en cas d'invocations l'index ne soit pas re-écrasé.
+
         $index = 0;
         $liste_tempo = $_SESSION['personnages'];
             // Evite qu'on retravaille sur la même liste, car confusion dans le foreach et la réaffectation
         foreach($liste_tempo as $key => $value){
-            $_SESSION['personnages'][$index] = $_SESSION['personnages'][$key];
+            $_SESSION['personnages'][$index] = $value;
             $index++;
         }
-
-        for($i = $index; $i <= count($_SESSION['personnages']) ; $i++){
+                // On va jusqu'à 100 pour être large, ce n'est pas rigoureux mais pas grave
+                // Methode propre : Aller voir la valeur la plus élevée en key dans $_SESSION['personnages']
+        for($i = $index+1; $i <= 100 ; $i++){
             unset($_SESSION['personnages'][$i]); 
         }       // On unset() tous les personnages ayant un index supérieur au dernier perso, jusqu'à avoir le nombre actuel de perso
 

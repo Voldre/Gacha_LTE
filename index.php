@@ -1,10 +1,23 @@
 <?php
+/*
 
+in_array(condition, tableau);
+
+si condition est une valeur existante dans tableau, alors return true
+
+Quand on utilise un else{}, on ne doit pas faire descendre l'accolade sur la ligne d'après, ni d'un espace
+
+        else 
+        { ?>
+        <?php 
+        }
+    N'est pas valide!
+*/
 $_SESSION['position'] = "debut";
 
 require("Perso.php"); // Classe en tout tout premier
 
-session_start();    // Toujours en premier MAIS après les classes
+session_start(); // Avant tout code HTML mais après les classes
 
 ?>
 <audio autoplay controls loop  style="display: none;">
@@ -14,11 +27,8 @@ session_start();    // Toujours en premier MAIS après les classes
 
 if(isset($_GET['new_game']))
 {   
-    session_unset(); 
-
-    $_SESSION['position'] = "debut";
+    unset($_SESSION['personnages']);
     $_SESSION['invocation'] = 0;
-
 
     header('Location : Intro.php');
 } 
@@ -26,31 +36,27 @@ if(isset($_GET['new_game']))
 require("Liste_Persos.php");
 
 
-$ma_liste_ennemis = [];
-
 if(isset($_POST['change']) ){
     $_SESSION['ennemis'] = array();
 }
 
 if(isset($_POST['confirm'])){
-    $ma_new_list = array();
-    $first = false;
-    $second = false;
-    $third = false;
-    $fourth = false;
+    $places = array(false,false,false,false);
 
     $isOK = true;
 
-    echo "ici";
-    print_r($_POST);
+    // echo "ici";
+    // print_r($_POST); 
 
-    
     for($i = 0; $i <= 4; $i++){
         $variable = 'character:'+$i ;
-        $ma_new_list = $_POST ;
     }
-    foreach ($ma_new_list as $label => $attribut){
+    foreach ($_POST as $label => $attribut){
         echo $label." est associé à : ".$attribut ."  " ;
+        if( $attribut >= 1 && $attribut <= 4){
+            $places[$attribut-1] = true; // Tableau = plus ergonomique
+        }
+        /*
         switch($attribut){
             case 1: $first = true;
         break;
@@ -60,28 +66,29 @@ if(isset($_POST['confirm'])){
         break;
             case 4: $fourth = true;
         break;
-            }
+            } */
         }
 
     echo "<br/>";
-    $last_list = array_count_values($ma_new_list);
-    foreach($last_list as $label => $attribut){
-        if($label != "0" && $attribut > 1){
+    $liste_occurrences = array_count_values($_POST);
+    print_r($liste_occurrences);
+    foreach($liste_occurrences as $label => $attribut){
+        if($label != "0" && $attribut > 1){ // Supérieure (stricte) à une occurrence
             echo "<p>Problème! Plusieurs personnages se trouvent à la même place!</p>";
             $isOK = false;
         }
     }
-    if(!$first || !$second || !$third || !$fourth){
+    if( in_array(false, $places) ){
         echo "<p>Problème! Une ou plusieurs places n'ont pas été attribuées!</p>";
         $isOK = false;
     }
 
-    if ($isOK){
+    if($isOK){
         ?>
         <p>Le jeu est prêt! Vous pouvez débuter</p>
 
-        <?php
-        foreach($ma_new_list as $key => $value){
+        <?php   // Pour chaque données envoyée
+        foreach($_POST as $key => $value){
 
             if($value*2 != 0 ){ // Vérifie que $value != 0 et $value != string, car string * 2 = 0
                 $liste_definitive[$value] = $_SESSION['personnages'][$key];
@@ -105,20 +112,14 @@ function place() { ?>
 
 function place_enemy($x,$my_list) {
 
-    if(isset($_SESSION['ennemis']) ){
-        $ma_liste_ennemis = $_SESSION['ennemis'];
-    }
-    if( !isset($ma_liste_ennemis[$x]) && !isset($_POST['confirm']) ){
+    if( !isset($_SESSION['ennemis'][$x]) && !isset($_POST['confirm']) ){
         $character = array_rand($my_list,1) ;
-        $_SESSION['ennemis'][$x] = $my_list[$character];
-
         $character = $my_list[$character];    
 
-        global $ma_liste_ennemis ;
-        $ma_liste_ennemis[$x] = $character ;
+        $_SESSION['ennemis'][$x] = $character ;
         }
     else {
-    $character = $ma_liste_ennemis[$x];
+    $character = $_SESSION['ennemis'][$x];
     }
     #echo "Voici : ".$character;
     ?>
@@ -145,8 +146,6 @@ function remove_element($array,$value) {
    }
    
 
-$ma_liste = array();
-
 function random_character($x, $my_list) {
 
     $liste_restante = $my_list ;
@@ -158,7 +157,6 @@ function random_character($x, $my_list) {
 
         $character = $my_list[$character] . ".png" ;
 
-        $ma_liste[$i] = $character ;
         #echo "Voici : ".$character;
         ?>
         <div id="div1"> <!-- ondrop="drop(event)" ondragover="allowDrop(event)"> -->
@@ -208,9 +206,14 @@ function affiche_liste_persos($liste) {
 
      require("header.php");
 
-if(!isset($_SESSION['personnages']) ){ ?>
+
+if(!isset($_SESSION['id']) ){
+    echo "<p>Connectez-vous pour pouvoir jouer, ou créer un compte!</p>";
+
+}
+else if(!isset($_SESSION['personnages']) ){ ?>
     <form action ="Intro.php" method="GET">
-        <input type="submit" name="new_game" value="Lancer une nouvelle partie"/>
+        <input type="submit"  value="Oui, lancer une nouvelle partie"/>
     </form>
 <?php
 }
@@ -232,13 +235,13 @@ else if( !isset($_SESSION['characters']) ){
 </form>
 <?php } ?>
 
+
 <main id="tournament">
 <ul class="round round-1">
-
 <?php
-
     for($i = 1 ; $i <= 4 ; $i++)
     {          // **** (9) *2 en proba en % ! ****
+         // Augmenter avec une variable la proba d'avoir un 4* selon la difficulté! (Niveaux? Nb persos 4* du joueur?)
         if(rand(1,100) <= 9 + 9){
             global $liste_no_o_4_stars;
             $liste_use = $liste_no_o_4_stars;
@@ -254,14 +257,13 @@ else if( !isset($_SESSION['characters']) ){
 <?php
     }
     ?>
-
     <li class="spacer">&nbsp;</li>
 </ul>
+
 <ul class="round round-2">
     <?php
     for($i = 0 ; $i <= 1 ; $i++)
-    {
-        ?>
+    {   ?>
         <li class="spacer">&nbsp;</li>
         
         <li class="game game-top winner"><?php place()?> </li>
@@ -272,31 +274,24 @@ else if( !isset($_SESSION['characters']) ){
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-bottom "><?php place() ?> </li>
         <li class="spacer">&nbsp;</li>
-
 <?php
-    }
-    ?>
-
+    }    ?>
     <li class="spacer">&nbsp;</li>
 </ul>
+
 <ul class="round round-3">
-<?php
-    for($i = 0 ; $i <= 0 ; $i++)
-    {
-        ?>
         <li class="spacer">&nbsp;</li>
         
         <li class="game game-top winner"><?php place() #echo "player n°".$i ;?> <span>79</span></li>
         <li class="game game-spacer">&nbsp;</li>
         <li class="game game-bottom "><?php place() #echo "player n°".$i*2 ;?> <span>48</span></li>
         <li class="spacer">&nbsp;</li>
-
-<?php
-    }  ?>
 </ul>
-<ul class="round round-4">
 
+<ul class="round round-4">
     <?php echo "<div id=\"div2\"></div>"; ?>
+</ul>
+
 </main>
 
     <script>
