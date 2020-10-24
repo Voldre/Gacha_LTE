@@ -9,4 +9,7 @@
 </head>
 
 <body>
-<?php     require("Menu.php") ;?>
+<?php     require("Menu.php") ;
+         require("Liste_Persos.php");
+
+?>

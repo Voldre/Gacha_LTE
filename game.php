@@ -39,12 +39,9 @@ require("Perso.php"); // Classe en tout tout premier
 
 session_start(); // Avant tout code HTML mais après les classes
 
-require("Liste_Persos.php");
-
-
 ?>
  <audio autoplay controls loop  style="display: none;">
-  <source src="Valkyrie_Anatomia.mp3" type="audio/mpeg">
+  <source src="Caelestinum_Genshin.ogg" type="audio/ogg">
   </audio>
 <?php
 

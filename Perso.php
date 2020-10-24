@@ -67,13 +67,13 @@ class Perso
       $this->setPvm($list_SQL['PVM_P']); // _P car spécifique au perso enregistré, on charge ses stats à lui
 
     }
-    else{
+    else{     // Adapté pour supporter le nouveau format de $list, $liste_4_stars, en mode SQL
       $this->setNom($heros);
-      $this->setStars($stars);
-      $this->setAtk(8 + $list[$this->nom][0] + rand(-1,1) );
-      $this->setDef(8 + $list[$this->nom][1] + rand(-1,1) );
-      $this->setType_elmt($list[$this->nom][2]);
-      $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );
+      $this->setStars($list[$heros]["STARS"]);
+      $this->setAtk($list[$heros]["ATK"] + rand(-1,1) ); // Double tableau [nom][stats] 
+      $this->setDef($list[$heros]["DEF"] + rand(-1,1) ); // car on a dit: tous les premiers array = le nom
+      $this->setType_elmt($list[$heros]["ELMT"]);        // Direction Listes_Persos.php pour plus d'info!
+      $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );                 // Section : Objects lists
     }
       // Commun peu importe la méthode
     //$this->setNiveaux(1);

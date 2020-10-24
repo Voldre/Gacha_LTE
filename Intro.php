@@ -48,8 +48,6 @@ Situation non prévu : Supprimer un personnage au milieu du combat !
 
     session_start();
 
-    include("Liste_Persos.php");
-
     require("header.php");
 
     function remove_element($array,$value) {
@@ -240,3 +238,6 @@ function affiche_liste_persos() {
     <form action="index.php" method="post">
         <input type="submit" value="Valider"/>
     </form></div>
+
+    </body>
+</html>

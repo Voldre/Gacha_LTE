@@ -33,8 +33,6 @@ if(isset($_GET['new_game']))
     header('Location : Intro.php');
 } 
 
-require("Liste_Persos.php");
-
 
 if(isset($_POST['change']) ){
     $_SESSION['ennemis'] = array();
@@ -114,7 +112,7 @@ function place_enemy($x,$my_list) {
 
     if( !isset($_SESSION['ennemis'][$x]) && !isset($_POST['confirm']) ){
         $character = array_rand($my_list,1) ;
-        $character = $my_list[$character];    
+        $character = $my_list[$character];  
 
         $_SESSION['ennemis'][$x] = $character ;
         }
@@ -206,7 +204,6 @@ function affiche_liste_persos($liste) {
 
      require("header.php");
 
-
 if(!isset($_SESSION['id']) ){
     echo "<p>Connectez-vous pour pouvoir jouer, ou créer un compte!</p>";
 
@@ -246,8 +243,8 @@ else if( !isset($_SESSION['characters']) ){
             global $liste_no_o_4_stars;
             $liste_use = $liste_no_o_4_stars;
         }
-        else { global $liste_no_o ; 
-            $liste_use = $liste_no_o; }
+        else { global $list_no_o ; 
+            $liste_use = $list_no_o; }
         ?>
         <li class="spacer">&nbsp;</li>
         <li class="game game-top winner"><?php place_for_character($i) ?></li>

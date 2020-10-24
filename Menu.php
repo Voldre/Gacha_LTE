@@ -60,5 +60,7 @@ try {
 
     <form action="Intro.php" method="GET">
         <input type="submit" name="free" value="Délivrer un personnage"/>
+        <a style="font-size: 35px; float: right;" href="Presentation_Persos.php"><img src="question_mark.png" width="100"/></a>
+
     </form>
 </div>

@@ -12,11 +12,13 @@ A vraiment retenir : on ne met JAMAIS un mot de passe dans une bdd en VARCAHR(55
 
 En cas de deconnexion, pas besoin de valider on locate directe.
 
-Pour rajouter des éléments dans un tableau sans préciser d'index :
+Pour rajouter des éléments dans un tableau sans écraser l'élément précédent (et sans avoir à préciser d'index) :
 
     $montableau[indexconnu][] = $ma_valeur
-
     Et on créera (si vierge) : $montableau[indexconnu][0], puis [1], puis [2], etc...
+
+    Bref : Cela permet de générer un tableau de plusieurs éléments avec une série de $tab[] = truc
+
 
 Rappel de syntaxe UPDATE : 
 
@@ -57,6 +59,10 @@ if(isset($_POST['Ma_Connexion'])){
 }
 
 if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 personnes d'avoir le même pseudo!
+
+    $_POST['login'] = strtolower($_POST['login']);
+    $_POST['login'] = htmlspecialchars($_POST['login']);
+
     $requete = $db->prepare('SELECT ID, login, mdp, argent FROM Joueurs WHERE login = ?');
     $requete->execute(array($_POST['login']));
 
@@ -64,7 +70,6 @@ if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 
 
     $isPasswordCorrect = password_verify($_POST['mdp'],$donnees['mdp']);
     // Evite de saisir Pseudo, pseudo, pSEUDo comme 3 logins différents !
-    $_POST['login'] = strtolower($_POST['login']);
         // Si PseUDo  == pseudo (donc oui car strtolower)
     if($_POST['login'] == $donnees['login'] && $isPasswordCorrect){
 
@@ -226,3 +231,7 @@ if(isset($_POST['subscribe']) ){
 <form action="index.php" method="post">
 <input type="submit" value="Retourner au jeu"/>
 </form>
+
+
+</body>
+</html>

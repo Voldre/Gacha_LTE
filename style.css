@@ -165,13 +165,6 @@ img {
     /*border: 1px solid black;*/
 }
 
-div.liste {
-    background-color: rgb(75, 70, 80);
-    border: 4px ridge rgba(160, 96, 0, 0.823);
-    margin-right: 450px;
-    /* thick double */
-}
-
 .menu {
     margin-left: 15%;
     margin-right: 50px;
