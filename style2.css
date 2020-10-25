@@ -1,3 +1,12 @@
+/* 
+Flex content :
+https://developer.mozilla.org/fr/docs/Web/CSS/justify-content 
+
+    background-size: 900px 1600px;
+    ou              50%  auto;
+
+*/
+
 body {
     /*background-color: rgb(202, 202, 202);*/
     background-image: url("BlueSpace.png");
@@ -55,13 +64,27 @@ img {
     /*border: 1px solid black;*/
 }
 
-h3 {
+h3,
+h5,
+p {
     color: rgb(226, 225, 225);
+}
+
+.gold_red {
+    color: rgb(214, 85, 10);
+}
+
+.underline {
+    text-decoration: underline;
 }
 
 h4 {
     color: rgb(226, 225, 225);
-    text-decoration: underline;
+}
+
+.new_hero {
+    color: goldenrod;
+    font-weight: bold;
 }
 
 .container {
@@ -74,6 +97,9 @@ h4 {
 }
 
 .container_creation {
+    background-color: rgba(15, 3, 23, 0.919);
+    background-image: url("Circle2.png");
+    background-size: 900px 1600px;
     display: inline-block;
     width: 725px;
     border: ridge darkblue 3px;

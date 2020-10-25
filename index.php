@@ -237,9 +237,14 @@ else if( !isset($_SESSION['characters']) ){
 <ul class="round round-1">
 <?php
     for($i = 1 ; $i <= 4 ; $i++)
-    {          // **** (9) *2 en proba en % ! ****
-         // Augmenter avec une variable la proba d'avoir un 4* selon la difficulté! (Niveaux? Nb persos 4* du joueur?)
-        if(rand(1,100) <= 9 + 9){
+    {         
+        // **** PROBA DES ENNEMIS D'ÊTRE 4* ou 5* ! ****
+         $drop = rand(1,100);
+         if($drop == 1){
+             global $liste_no_o_5_stars;
+             $liste_use = $liste_no_o_5_stars;
+         }
+         else if($drop <= 10){
             global $liste_no_o_4_stars;
             $liste_use = $liste_no_o_4_stars;
         }

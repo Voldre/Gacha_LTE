@@ -309,8 +309,8 @@ foreach($_SESSION['personnages'] as $key => $value){
 <?php
 
 function combat($perso1,$perso2){
-
-    $value_of_fight = ($perso1->atk() - $perso2->atk()) + ($perso1->def() - $perso2->def()) + ($perso1->pv() - $perso2->pv())/4;
+                                                                                           // Avant :  /4 ! Importance PV réhaussée!
+    $value_of_fight = ($perso1->atk() - $perso2->atk()) + ($perso1->def() - $perso2->def()) + ($perso1->pv() - $perso2->pv()) / 3;
     echo "<br/>Value of Fight :".$value_of_fight;
     //if($value_of_fight == 0){ // J'ai oublié le double égale! ALORS QUE LE IF EST USELESS ! 20m perdus
     while($value_of_fight == 0){

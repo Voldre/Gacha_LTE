@@ -50,7 +50,7 @@ $reponse->closeCursor();
 
 <h3>Toutes les statistiques présentées ici sont les valeurs moyennes pour chaque personnage, 
 <br/>vous pouvez donc obtenir aléatoirement des statistiques légèrement meilleure ou moins bonne.</h3>
-<h4>&nbsp; &nbsp; Vous pouvez aussi créer un nouveau personnage <a href="Creation.php">ici...</a></h4>
+<h4 style="margin-left: 20px;">Vous pouvez aussi créer un nouveau personnage <a href="Creation.php">ici...</a></h4>
 <form action="index.php" method="post">
 <input type="submit" value="Retourner au jeu"/>
 </form>
@@ -59,7 +59,19 @@ $reponse->closeCursor();
 echo "<div class=\"container\">";
 
 echo "<h4>Liste des personnages <span style=\"color: gold;\">5 étoiles</span> (1% de chance) : </h4>";
-?>
+
+foreach($liste_5_stars as $key => $value){
+    ?>
+        <div class="div_presentation"> 
+        <img src=<?= $key.".png" ?> />
+        </div>
+            <p class="infos_presentation"><span style="text-align  center;"> <?= $key ?> </span>
+                <br/> Points de vie :  <?= $liste_5_stars[$key]['PVM'] ?>
+                <br/> Attaque : <?= $liste_5_stars[$key]['ATK'] ?>
+                <br/> Défense : <?= $liste_5_stars[$key]['DEF'] ?>
+                <br/> Element : <?= $liste_5_stars[$key]['ELMT'] ?>
+            </p> <?php
+} ?>
 </div>
 <?php
 

@@ -68,8 +68,14 @@ Situation non prévu : Supprimer un personnage au milieu du combat !
         
         for($i = 1; $i <= $x; $i++)
         {         
-            // Choix aléatoires des listes selon la rareté!
-            if(rand(1,100) <= 9){
+            // **** PROBA DU JOUEUR DE TIRER UN 4* OU 5* ! ****
+            // Choix aléatoire des listes selon la rareté!
+            $drop = rand(1,100);
+            if($drop == 1){
+                global $liste_5_stars;
+                $liste_use = $liste_5_stars;
+            }
+            else if($drop <= 10){
                 global $liste_4_stars; 
             // global A DECLARER POUR UTILISER LES VARIABLES de Liste_Persos.php
             // Car on utilise des variables globales dans une fonction (ici invocation()).

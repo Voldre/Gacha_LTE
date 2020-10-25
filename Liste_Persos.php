@@ -27,51 +27,50 @@ $liste_no_o_4_stars = array("Velrod","Nerio","Brahms","Chrome","Dark_Silarius","
     // Création de personnages en requête SQL
 
 // Objects lists
+function liste_objects($stars,$db){
 
-$list = array();
-$reponse = $db->query('SELECT * FROM Cartes_Personnages WHERE STARS = 3');
+    $reponse = $db->prepare('SELECT * FROM Cartes_Personnages WHERE STARS = ?');
+    $reponse->execute( array($stars));
 
-while( $data = $reponse->fetch()){
-    $list[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
+    while( $data = $reponse->fetch()){
+        $liste_output[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
+    }
+    $reponse->closeCursor();
+
+    return $liste_output;
 }
-$reponse->closeCursor();
 
-$liste_4_stars = array();
-$reponse = $db->query('SELECT * FROM Cartes_Personnages WHERE STARS = 4');
+$list = liste_objects(3,$db);
 
-while( $data = $reponse->fetch()){
-    $liste_4_stars[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
-}
-$reponse->closeCursor();
+$liste_4_stars = liste_objects(4,$db);
+
+$liste_5_stars = liste_objects(5,$db);
 
 
 // No-Objects lists
+function liste_no_objects($stars,$db){
 
-$list_no_o = array();
-$reponse = $db->query('SELECT NOM FROM Cartes_Personnages WHERE STARS = 3');
+    $reponse = $db->prepare('SELECT NOM FROM Cartes_Personnages WHERE STARS = ?');
+    $reponse->execute( array($stars));
 
-while( $data = $reponse->fetch()){
-    $list_no_o[] = $data['NOM']; // [] permet d'ajouter un nouvel élément
+    while( $data = $reponse->fetch()){
+        $liste_output[] = $data['NOM']; // [] permet d'ajouter un nouvel élément
+    }
+    $reponse->closeCursor();
+
+    return $liste_output;
 }
-$reponse->closeCursor();
 
-$list_no_o_4_stars = array();
-$reponse = $db->query('SELECT NOM FROM Cartes_Personnages WHERE STARS = 4');
+$list_no_o = liste_no_objects(3,$db);
 
-while( $data = $reponse->fetch()){
-    $liste_no_o_4_stars[] = $data['NOM']; // [] permet d'ajouter un nouvel élément
-}
-$reponse->closeCursor();
+$liste_no_o_4_stars = liste_no_objects(4,$db);
+
+$liste_no_o_5_stars =liste_no_objects(5,$db);
 
 
+$liste_complete = $list_no_o + $liste_no_o_4_stars + $liste_no_o_5_stars;
 
-$liste_complete = $list_no_o + $liste_no_o_4_stars;
-
-$liste_complete_o = $list + $liste_4_stars;
-
-
-
-
+$liste_complete_o = $list + $liste_4_stars + $liste_5_stars;
 
 
 

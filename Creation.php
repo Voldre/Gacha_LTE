@@ -10,6 +10,18 @@
 
 <body>
 <?php   
+
+session_start();
+
+/*
+
+Mettre à jour les fichiers de force (CSS qui refuse de se mettre à jour) : 
+    Ctrl + F5 force le navigateur à supprimer la mémoire cache, donc reset le CSS
+
+ */
+
+
+
 try {
     $db = new PDO('mysql:host=localhost;', 'root', '', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));     
 
@@ -26,17 +38,17 @@ try {
 ?>
 
  <audio autoplay controls loop  style="display: none;">
-  <source src="Valkyrie_Anatomia.mp3" type="audio/mpeg">
+  <source src="Plus_que_Dechu.ogg" type="audio/ogg">
   </audio>
 
 <h3>Bienvenue dans l'espace création du jeu Gacha LTE !
 <br/>Ici vous pouvez créer vos propres personnages et personnaliser leurs caractéristiques.</h3>
-<h4>&nbsp; Pour cela, rien de plus simple, remplissez le formulaire ci-dessous :</h4>
+<h4>&nbsp; <span class="underline">Pour cela, rien de plus simple, remplissez le formulaire ci-dessous :</span></h4>
 
 <div class="container_creation">
 
 <form action="" method="post">
-<h4>Saisissez le nom de votre personnage en veillant bien à ce que son nom soit identique à son nom de fichier.</a></h4>
+<h4 class="gold_red">Saisissez le nom de votre personnage en veillant bien à ce que son nom soit identique à son nom de fichier.</a></h4>
 <h5>&nbsp; Exemple : Mon personnage s'appelle Silarius, mon fichier s'appellera Silarius.png dans le dossier Gacha_LTE.</h5>
 <p>Nom    : <input type="text" name="nom"/><p>
 <p>Rareté : <select name="stars">
@@ -54,7 +66,7 @@ try {
           <option value="lumiere">Lumière</option>
           <option value="tenebres">Ténèbres</option>
         </select></p> 
-<h4> Par rapport aux autres personnages de même rareté, comment se situe-t-il niveau ...</h4>
+<h4 class="gold_red"> Par rapport aux autres personnages de même rareté, comment se situe-t-il niveau ...</h4>
 <p>Attaque : <select name="atk">
           <option value="-2">Bien en dessous</option>
           <option value="-1">En dessous</option>
@@ -76,42 +88,103 @@ try {
 <?php
 
 if(isset( $_POST['creation'])){
+
     $_POST['nom'] = htmlspecialchars($_POST['nom']);
+    
+    $requete_nb = $db->prepare('SELECT COUNT(*) AS nb FROM Cartes_Personnages WHERE Nom = ?');
+    $requete_nb->execute( array( $_POST['nom']) );
+    $data = $requete_nb->fetch();
+    $requete_nb->closeCursor();
 
     if($_POST['nom'] == ""){
         echo "<p>Erreur : Vous n'avez pas saisi de nom!</p>";
     }
-    else{   ?>
-
+    else if($data['nb'] != 0){
+    ?>
+        <p>Erreur ! Ce personnage existe déjà!</p>
+        <p>Vous pouvez l'effacer pour le recréer en appuyant... 
+            <form method="post">
+                <input type="submit" name="delete" value="ici"/>
+                <input type="hidden" name="nom_perso" value= <?= $_POST['nom'] ?> />
+        </form> </p>
+    <?php
+    }
+    else{
+    ?>
         <h4>Voici la carte proposée pour votre personnage :</h4>
         <div class="div_presentation"> 
         <img src=<?= $_POST['nom'].".png" ?> alt="Le nom saisi ne renvoi vers aucune image, rappel : format attendu .png" />
         </div>
+            <?php $stars = $_POST['stars']; // PERMET DE SIMPLIFIER L'ECRITURE ?>
             <p class="infos_presentation"><span style="text-align  center;"> <?= $_POST['nom'] ?> </span>
-                <br/> Points de vie :  <?= 10 + 2*$_POST['stars'] ?>
-                <br/> Attaque : <?=  2 + 2*$_POST['atk'] + $stars*2 ?>
-                <br/> Défense : <?= 2 + 2*$_POST['def'] + $stars*2 ?>
-                <br/> Element : <?= $_POST['stars'] ?>
-            </p> 
-            <?php $liste_valeurs = $_POST;
-        <h4> Confirmez-vous la création du personnage? </h4>
+                <br/> Points de vie :  <?= 10 + 2*$stars; ?>
+                <br/> Attaque : <?=  2 + 2*$_POST['atk'] + $stars*2; ?>
+                <br/> Défense : <?= 2 + 2*$_POST['def'] + $stars*2; ?>
+                <br/> Element : <?= $_POST['elmt'] ?>   </p> 
+
+            <?php $_SESSION['tempo'] = $_POST;  // PERMET DE GARDER EN MEMOIRE LES STATS APRES LA VALIDATION (donc new $_POST) ?>
+
+        <h4> Confirmez-vous la création du personnage ? </h4>
         <form method="POST">
-            < 
-            <?php
-        
-        // ATK et DEF : 2 + 2*$_POST['atk'] + $stars*2  Soit 3* :  8 classique, 4 à 12, 4* pareil +2, 5* pareil +4
-        $requete = $db->prepare('INSERT INTO Cartes_Personnages(NOM,PVM,ATK,DEF,ELMT,STARS) VALUES (?, ?, ?, ?, ?, ?)');
-        $requete->execute( array($_POST['nom'], 10 + 2*$_POST['stars'], 2 + 2*$_POST['atk'] + $stars*2,
-                  10 + 2*$_POST['stars'], 2 + 2*$_POST['def'] + $stars*2, $_POST['elmt'], $_POST['stars']));
+            <select name="valide">
+                <option value="1">Oui</option>
+                <option value="0">Non</option>
+            </select>
+            <input type="submit" value="valider"/>
+        </form>
+
+    <?php
     }
 }
+        // Une fois le personnage créé :
 
+if(isset($_POST['valide']) && $_POST['valide'] == 1){
 
-echo "<h4>Liste des personnages <span style=\"color: silver;\">4 étoiles</span> : </h4>";
+    // Utilisation des données du personnage enregistré temporairement :
+    $perso = $_SESSION['tempo'];
+    unset($_SESSION['tempo']);
 
+    // ATK et DEF : 2 + 2*$_POST['atk'] + $perso['stars']*2  Soit 3* :  8 classique, 4 à 12, 4* pareil +2, 5* pareil +4
+    $requete = $db->prepare('INSERT INTO Cartes_Personnages(NOM,PVM,ATK,DEF,ELMT,STARS) VALUES (?, ?, ?, ?, ?, ?)');
+    $requete->execute( array($perso['nom'], 10 + 2*$perso['stars'], 2 + 2*$perso['atk'] + $perso['stars']*2,
+                            2 + 2*$perso['def'] + $perso['stars']*2, $perso['elmt'], $perso['stars']) );
+
+    echo "<h3>Le personnage <span class=\"new_hero\">".$perso['nom']."</span> a bien été créé !</h3>";
+}
+else if(isset($_POST['valide'])){
+    echo "<p>Vous pouvez changer les paramètres en les réécrivants ci-dessus.</p>";
+    unset($_SESSION['tempo']);
+
+}
+
+if( isset($_POST['delete']) ){
+    $requete = $db->prepare('DELETE FROM Cartes_Personnages WHERE Nom = ?');
+    $requete->execute( array($_POST['nom_perso']));
+    $requete->closeCursor();
+    echo "<p>Le personnage ".$_POST['nom_perso']." a été supprimé avec succès.</p>";
+}
+?>
+
+<br/><br/>
 <form action="index.php" method="post">
 <input type="submit" value="Retourner au jeu"/>
 </form>
+<br/>
+<form action="Presentation_Persos.php" method="post">
+<input type="submit" value="Revoir la liste des personnages"/>
+</form>
+
+
+<h4>Pour informations :</h4>
+<?php
+
+$requete = $db->query('SELECT elmt, COUNT(elmt) as nb_elmt FROM Cartes_Personnages GROUP BY ELMT');
+
+while($data = $requete->fetch()){
+    echo "<p>Element :  ".$data['elmt']." - Quantité : ".$data['nb_elmt'].".</p>";
+}
+$requete->closeCursor();
+?>
 
 </body>
 </html>
