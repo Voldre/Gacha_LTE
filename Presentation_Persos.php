@@ -22,25 +22,8 @@ try {
     echo $e->getMessage();
     echo "<p>Nous allons importer la Base de Données existante...</p>";
     }  
-         require("Liste_Persos.php");
-
-
-$list = array();
-$reponse = $db->query('SELECT * FROM Cartes_Personnages WHERE STARS = 3');
-
-while( $data = $reponse->fetch()){
-    $list[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
-}
-$reponse->closeCursor();
-
-$liste_4_stars = array();
-$reponse = $db->query('SELECT * FROM Cartes_Personnages WHERE STARS = 4');
-
-while( $data = $reponse->fetch()){
-    $liste_4_stars[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
-}
-$reponse->closeCursor();
-
+         
+    require("Liste_Persos.php");
 
 ?>
 

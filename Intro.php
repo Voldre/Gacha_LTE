@@ -4,13 +4,12 @@
 Notions intéressantes :
 
 On doit d'abord déclarer les CLASSES
-
 et ENSUITE le session_start();
 
-Sinon erreur de classe "incomplète"
+    Sinon erreur de classe "incomplète"
 
 Pour utiliser dans une fonction des variables qui sont déclarés ailleurs, il faut
-soit les envoyer en paramètre, soit les déclarer en global dans la fonction!
+soit les envoyer en paramètres, soit les déclarer en global dans la fonction!
 
     Ex : Liste_Persos.php contient $liste_4_stars
     Pour l'utiliser dans une fonction, il faudra écrire :
@@ -25,22 +24,22 @@ count() comme python pour connaître le nombre d'éléments d'un tableau, ex :
 
 
 Lorsqu'on supprime un personnage (donc un array random d'une liste),
-il faut penser à renuméroté correctement les array().
+il faut penser à renuméroter correctement les array().
 
     Parce que la variable session personnage va toujours compter le nombre de persos et faire +1 à l'index.
 
-    Si 6 persos, et on supprime le 2e. Alors on aura 0,2,3,4,5.
+    S'il y a 6 persos, et on supprime le 2e. Alors on aura 0,2,3,4,5. Il y a un trou, l'index 1 n'est plus là.
     Il reste 5 persos, donc le nouveau "6eme" aura l'index 5, et il écrasera l'ancien "6e".
-    Du coup, il faut bien penser à renuméro pour count() renvoie sur le dernier vrai index!
+    Du coup, il faut bien penser à renuméroter pour que count() renvoie sur le dernier vrai index!
 
 
-Situation non prévu : Supprimer un personnage au milieu du combat !
+Situation non prévue : Essayer d'aller au menu "délivrer un personnage" au milieu du combat !
 
-    C'est une solution intéressante pour éviter de perdre 2 d'argents si on sait qu'on a lose.
+    C'est une solution intéressante pour éviter de perdre 2 d'argents si on sait qu'on va lose.
     MAIS, involontairement, j'ai rendue cette pratique défavorable, car si tu quittes un tournoi
-    précipitamment (donc triche), eh bien tes personnnages ne sont pas soignés!
-    Autrement dit, tricher pour pas perdre 2 argents <=> Ne pas être soigné, donc persos inutilisables
-    jusqu'à la fin du prochain tournoi fini !
+    précipitamment (donc que tu triches), eh bien tes personnnages ne seront pas soignés!
+    Autrement dit, tricher pour ne pas perdre 2 argents <=> Ne pas être soigné, donc persos inutilisables
+    jusqu'à la fin du prochain tournoi achevé ! 😉
 
 */
 
@@ -78,24 +77,16 @@ Situation non prévu : Supprimer un personnage au milieu du combat !
             else if($drop <= 10){
                 global $liste_4_stars; 
             // global A DECLARER POUR UTILISER LES VARIABLES de Liste_Persos.php
-            // Car on utilise des variables globales dans une fonction (ici invocation()).
+            // Car on utilise des variables globales dans une fonction (ici invocation() ).
                 $liste_use = $liste_4_stars;
             }
             else { global $list; $liste_use = $list; }
 
             $character = array_rand($liste_use,1) ;
-            /*
-            echo"<br/>";
-            echo "J'ai eu :".$liste_use[$character]."<br/>";
-            print_r($liste_use);
-            echo "<br/>";*/
-
-            //$liste_restante = remove_element($liste_restante,$my_list[$character]);
     
-            $character .= ".png" ;
             $ma_liste[$i] = $character ;
             ?>
-            <img src=<?= $character ?> id="drag1" width="140" height="140" /><!-- draggable="true" ondragstart="drag(event)" -->
+            <img src=<?= $character.".png" ?> id="drag1" width="140" height="140" /><!-- draggable="true" ondragstart="drag(event)" -->
         <?php                     
         } ?>         
         </div> 
@@ -111,9 +102,8 @@ function invocation_creation($ma_liste_de_persos, $invoc){
     $nb_personnages = count($_SESSION["personnages"]);
     } else { $nb_personnages = 0;}
 
-for($i=1; $i<= $invoc; $i++){           // on retire .png !
-    $ma_liste_de_persos[$i] = substr($ma_liste_de_persos[$i],0,-4);
-    global $liste_complete_o;                                                           // camp = joueur (0)
+for($i=1; $i<= $invoc; $i++){    
+    global $liste_complete_o;                                                             // camp = joueur (donc 0)
     $_SESSION["personnages"][$nb_personnages + $i] = new Perso($ma_liste_de_persos[$i],$liste_complete_o,0);
                             }
 }
@@ -128,7 +118,7 @@ for($i=1; $i<= $invoc; $i++){           // on retire .png !
         
         $ma_liste_de_persos = invocation($nb_persos_debut);
 
-        invocation_creation($ma_liste_de_persos,$nb_persos_debut);
+        invocation_creation($ma_liste_de_persos,$nb_persos_debut); // On crée les persos avec leurs stats random
 
         $_SESSION['argent'] = 2;
     }
@@ -138,16 +128,16 @@ for($i=1; $i<= $invoc; $i++){           // on retire .png !
     if(isset($_GET['summon1']) || isset($_GET['summon10']) ){
 
         if($_GET['summon'] == 1 )
-        { $requis = 2; $invoc = 1; } // Glitchable en changeant 1 par 10 par exemples
+        { $requis = 2; $invoc = 1; } // Glitchable en changeant 1 par 10 par exemple
         else if($_GET['summon'] == 10 )
         { $requis = 18; $invoc = 10; }
 
             if($_SESSION['argent'] < $requis){
-            echo "<p>Vous n'avez pas assez d'argent!<br/>";
-            echo "En votre possession : ".$_SESSION['argent'].", requis : ".$requis;
-            $invoc = 0;
+                echo "<p>Vous n'avez pas assez d'argent!<br/>";
+                echo "<p>En votre possession : $_SESSION['argent'], requis : $requis </p>";
+                $invoc = 0;
             }
-            else{   $_SESSION['argent'] -= $requis;}
+            else{   $_SESSION['argent'] -= $requis; } // On débite l'argent
         
             if(isset($invoc) && $invoc > 0){
                 $persos_obtenus = invocation($invoc);
@@ -158,6 +148,8 @@ for($i=1; $i<= $invoc; $i++){           // on retire .png !
 
 
 function affiche_liste_persos() {
+
+    //print_r($_SESSION['personnages']);
 
     foreach($_SESSION['personnages'] as $key => $value){ 
         ?>
@@ -177,7 +169,8 @@ function affiche_liste_persos() {
             <?php echo "<p class=\"infos_menu\">".$_SESSION['personnages'][$key]->nom().
             "<br/> pv: ".$_SESSION['personnages'][$key]->pv()."/".$_SESSION['personnages'][$key]->pvm().
             "<br/> atk: ".$_SESSION['personnages'][$key]->atk().
-            "<br/> def: ".$_SESSION['personnages'][$key]->def()."</p>" ; ?>
+            "<br/> def: ".$_SESSION['personnages'][$key]->def().
+            "<br/> elmt: ".$_SESSION['personnages'][$key]->type_elmt()."</p>" ; // Pas oublier l'elmt ?>
         </div>
     </div>
 </div> 
@@ -200,12 +193,16 @@ function affiche_liste_persos() {
     }
 
     if(isset($_POST['leave'])){
+        global $liste_no_o_5_stars;
         global $liste_no_o_4_stars;
         $prix_delete = 0;
         foreach ($_POST as $label => $attribut){
-            //echo $label." est associé à : ".$attribut ."  " ;
-            if($attribut == 1){
 
+            if($attribut == 1){ // 1 vaut "retirer"
+                    // Si le perso est un perso 5* ...
+        if(in_array($_SESSION['personnages'][$label]->nom(),$liste_no_o_5_stars)){
+                    $prix_delete += 2;
+                }
                     // Si le perso est un perso 4* ...
         if(in_array($_SESSION['personnages'][$label]->nom(),$liste_no_o_4_stars)){
                     $prix_delete++;

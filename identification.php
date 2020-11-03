@@ -30,13 +30,11 @@ Rappel de syntaxe UPDATE :
 Lorsqu'on donne un surnom à une table, ex : Cartes_des_Joueurs AS CdJ, alors on 
 ne peut plus appeler une/des colonnes avec le nom Cartes_des_Joueurs,
 
-    ex :
-        $reponse = $db->prepare('SELECT CdJ.*, CP.*
+    ex :$reponse = $db->prepare('SELECT CdJ.*, CP.*
                                 FROM Cartes_des_Joueurs AS CdJ , Cartes_Personnages AS CP
                                 WHERE idJoueur = ?  AND CdJ.Nom_P = CP.NOM');
 
         On ne peut pas écrire SELECT Carte_des_Joueurs.*, car la table a un surnom qui est CdJ !
-
 */
 
 require("Perso.php"); // Classe en tout tout premier
@@ -60,7 +58,7 @@ if(isset($_POST['Ma_Connexion'])){
 
 if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 personnes d'avoir le même pseudo!
 
-    $_POST['login'] = strtolower($_POST['login']);
+    $_POST['login'] = strtolower($_POST['login']); // Evite de saisir Pseudo, pseudo, pSEUDo comme 3 logins différents !
     $_POST['login'] = htmlspecialchars($_POST['login']);
 
     $requete = $db->prepare('SELECT ID, login, mdp, argent FROM Joueurs WHERE login = ?');
@@ -69,7 +67,6 @@ if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 
     $donnees = $requete->fetch();
 
     $isPasswordCorrect = password_verify($_POST['mdp'],$donnees['mdp']);
-    // Evite de saisir Pseudo, pseudo, pSEUDo comme 3 logins différents !
         // Si PseUDo  == pseudo (donc oui car strtolower)
     if($_POST['login'] == $donnees['login'] && $isPasswordCorrect){
 
@@ -136,7 +133,6 @@ if(isset($_POST['Deconnexion'])){
     setcookie('pass_hache', '');
 
     header("Location: index.php");
-
 }
 
     // Sauvegarde
@@ -185,13 +181,14 @@ if(isset($_POST['Inscription'])){
 }
 if(isset($_POST['subscribe']) ){
 
+     // Evite de saisir Pseudo, pseudo, pSEUDo comme 3 logins différents ! Tout sauvegardé en minuscule!
+     $_POST['login'] = strtolower($_POST['login']);      
     $isLoginOK = true;
     $isMdpOK = true;
 
     $reponse = $db->query('SELECT login FROM Joueurs');
     while ($donnees = $reponse->fetch()) 
-    {         // Evite de saisir Pseudo, pseudo, pSEUDo comme 3 logins différents ! Tout sauvegardé en minuscule!
-        $_POST['login'] = strtolower($_POST['login']); 
+    {        
         if($donnees['login'] == $_POST['login']){
             $isLoginOK = false;
         }
@@ -214,7 +211,7 @@ if(isset($_POST['subscribe']) ){
         $requete = $db->prepare('INSERT INTO Joueurs(login, mdp, argent) VALUES (?,?,?)');
         $password = password_hash($_POST['mdp'], PASSWORD_DEFAULT);
         $requete->execute( array($_POST['login'], $password , -100 ));
-                                    // Valeur par défaut pour dire "N'a jamais joué, donc 0 perso".
+                                    // Valeur par défaut pour dire "N'a jamais joué, donc 0 perso car -100 argents".
         $requete->closeCursor();
         ?>
         <p>Votre inscription a bien été réalisée!</p>"        

@@ -5,7 +5,7 @@ in_array(condition, tableau);
 
 si condition est une valeur existante dans tableau, alors return true
 
-Quand on utilise un else{}, on ne doit pas faire descendre l'accolade sur la ligne d'après, ni d'un espace
+Quand on utilise un else{}, on ne doit pas faire descendre l'accolade sur la ligne d'après, (ni d'un espace)
 
         else 
         { ?>
@@ -50,7 +50,7 @@ if(isset($_POST['confirm'])){
         $variable = 'character:'+$i ;
     }
     foreach ($_POST as $label => $attribut){
-        echo $label." est associé à : ".$attribut ."  " ;
+        //echo $label." est associé à : ".$attribut ."  " ;
         if( $attribut >= 1 && $attribut <= 4){
             $places[$attribut-1] = true; // Tableau = plus ergonomique
         }
@@ -194,7 +194,8 @@ function affiche_liste_persos($liste) {
             <?php echo "<p class=\"infos_menu\">".$liste[$key]->nom().
             "<br/> pv: ".$liste[$key]->pv()."/".$liste[$key]->pvm().
             "<br/> atk: ".$liste[$key]->atk().
-            "<br/> def: ".$liste[$key]->def()."</p>" ; ?>
+            "<br/> def: ".$liste[$key]->def().
+            "<br/> elmt: ".$liste[$key]->type_elmt()."</p>" ; ?>
         </div>
     </div>
 </div> 
@@ -240,11 +241,11 @@ else if( !isset($_SESSION['characters']) ){
     {         
         // **** PROBA DES ENNEMIS D'ÊTRE 4* ou 5* ! ****
          $drop = rand(1,100);
-         if($drop == 1){
+         if($drop <= 4 ){   // A rendre dynamique selon le niveau du joueur (selon son avancement)
              global $liste_no_o_5_stars;
              $liste_use = $liste_no_o_5_stars;
          }
-         else if($drop <= 10){
+         else if($drop <= 40 ){
             global $liste_no_o_4_stars;
             $liste_use = $liste_no_o_4_stars;
         }
@@ -290,7 +291,7 @@ else if( !isset($_SESSION['characters']) ){
 </ul>
 
 <ul class="round round-4">
-    <?php echo "<div id=\"div2\"></div>"; ?>
+    <?php echo "<div id=\"div2\"></div>"; // place(); ?>
 </ul>
 
 </main>

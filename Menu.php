@@ -14,13 +14,15 @@ try {
     echo "<p>Nous allons importer la Base de Données existante...</p>";
     }    ?>
  
-<div class="menu">
+<div class="menu">      <!-- Renvoi vers Intro.PHP -->
     <form method="GET">
         <input type="submit" name="new_game" value="Lancer une nouvelle partie ? " class="main_button"/>
     </form>
 
-    <?php
+    <?php  
     echo "<p>Gacha : LTE</p><h5>Site réalisé par Voldre (12/10/2020 --> )</h5>";
+
+                // Renvoi vers identification.PHP
 
     if (isset($_SESSION['id']) && isset($_SESSION['login']) ){
             echo "<h5>Bonjour " , strtolower($_SESSION['login']) , " !</h5>";
@@ -46,7 +48,7 @@ try {
     if(isset($_SESSION['argent'])){
     echo "Argent : ".$_SESSION['argent']." Gold.";
     }
-    ?>
+    ?>           <!-- Renvoi vers Intro.PHP -->
 
     <br/><p>Invocations :</p>
     <form action="Intro.php" method="GET">

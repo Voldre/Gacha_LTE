@@ -10,22 +10,6 @@ Une classe doit toujours avoir ses setters le plus général possible! setPvm($v
     Moi je déclare mes objets soit à la mano, soit en SQL, du coup mes setters doivent être global, et l'un trouvera
     sa valeur dans $list, l'autre dans $liste_SQL, c'est tout!
     
-    if($list_SQL != ""){
-      
-      $this->setNom($list_SQL['NOM']);
-      $this->setStars($list_SQL['STARS']);
-      $this->setAtk($list_SQL['ATK']);    ...
-      $this->setPvm($list_SQL['PVM']);
-
-    }
-    else{
-      $this->setNom($heros);
-      $this->setStars($stars);
-      $this->setAtk(8 + $list[$this->nom][0] + rand(-1,1) );
-      $this->setType_elmt($list[$this->nom][2]);
-      $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );
-    }
-
 Bien penser à récupérer les variables SQL ATK_P, DEF_P et PVM_P, car elles correspondent aux vrais stats.
 
     L'erreur est de prendre les stats génériques, donc de la table "Cartes_Personnages", mais aucun random() n'y est.
@@ -57,7 +41,7 @@ class Perso
   {                                                        // Pas obliger de passer par une requête SQL
     //$this->hydrate($heros);
 
-    if($list_SQL != ""){
+    if($list_SQL != ""){  // Chargement du Perso déjà existant dans la BDD
       
       $this->setNom($list_SQL['NOM']); 
       $this->setStars($list_SQL['STARS']);
@@ -67,7 +51,7 @@ class Perso
       $this->setPvm($list_SQL['PVM_P']); // _P car spécifique au perso enregistré, on charge ses stats à lui
 
     }
-    else{     // Adapté pour supporter le nouveau format de $list, $liste_4_stars, en mode SQL
+    else{     // Adapté pour supporter le nouveau format de $list, $liste_4_stars, en mode SQL : Création de perso
       $this->setNom($heros);
       $this->setStars($list[$heros]["STARS"]);
       $this->setAtk($list[$heros]["ATK"] + rand(-1,1) ); // Double tableau [nom][stats] 

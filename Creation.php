@@ -122,7 +122,7 @@ if(isset( $_POST['creation'])){
                 <br/> Défense : <?= 2 + 2*$_POST['def'] + $stars*2; ?>
                 <br/> Element : <?= $_POST['elmt'] ?>   </p> 
 
-            <?php $_SESSION['tempo'] = $_POST;  // PERMET DE GARDER EN MEMOIRE LES STATS APRES LA VALIDATION (donc new $_POST) ?>
+            <?php $_SESSION['tempo'] = $_POST;  // PERMET DE GARDER EN MEMOIRE LES STATS après la validation d'un nouveau formulaire ?>
 
         <h4> Confirmez-vous la création du personnage ? </h4>
         <form method="POST">
@@ -149,7 +149,7 @@ if(isset($_POST['valide']) && $_POST['valide'] == 1){
     $requete->execute( array($perso['nom'], 10 + 2*$perso['stars'], 2 + 2*$perso['atk'] + $perso['stars']*2,
                             2 + 2*$perso['def'] + $perso['stars']*2, $perso['elmt'], $perso['stars']) );
 
-    echo "<h3>Le personnage <span class=\"new_hero\">".$perso['nom']."</span> a bien été créé !</h3>";
+    echo "<h3>Le personnage <span class=\"new_hero\"> $perso['nom'] </span> a bien été créé !</h3>";
 }
 else if(isset($_POST['valide'])){
     echo "<p>Vous pouvez changer les paramètres en les réécrivants ci-dessus.</p>";

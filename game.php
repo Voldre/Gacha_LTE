@@ -5,7 +5,7 @@ Notions intéressantes :
 
 Idée très cool :
     liste les personnages (objets) dans un tableau!
-    Comme ça j'ai le tableau[ round ] [ camp ] et à l'intérieur tous les persos rangés!
+    Comme ça j'ai le tableau[ round ] et à l'intérieur tous les persos rangés!
 
 Utiliser une liste dans une classe? L'envoyer à la classe par le constructeur.
 
@@ -20,7 +20,7 @@ Afficher une image dynamiquement (qui scroll):
 
 J'ai cherché 30 MINUTES une erreur d'un return de fonction, tout ça juste parce que je ne
 sais pas écrire correctement un if!  if($value_of_fight = 0){ while $value_of_fight == 0}
-    Là-dessus j'ai été débile! SURTOUT qu'il ne sert à rien, car le while() fait tout!
+    Là-dessus j'ai été débile! SURTOUT qu'il ne sert à rien, car le while() fait tout! Mais on n'oublie pas un DOUBLE EGALE "==" !
 
     Vider un sous-tableau en PHP? Facile : $persos_totaux[1] = array(), ne videra pas [0].
 
@@ -30,13 +30,11 @@ sais pas écrire correctement un if!  if($value_of_fight = 0){ while $value_of_f
     avec 1,2,3,4 = position du round+1
         Alors il faut définir un index de ref, ex : 1,3,5,7 et jouer dessus:
         ally = $i+1
-        $position_round = ($i+1)/2  : soit (1+1)/2 (1+3)/2 (1+5/2), ... donc 1,2,3,4
-
+        $position_round = ($i+1)/2  : soit (1+1)/2 (3+1)/2 (5+1)/2, ... donc 1,2,3,4
 
 */
 
 require("Perso.php"); // Classe en tout tout premier
-
 session_start(); // Avant tout code HTML mais après les classes
 
 ?>
@@ -70,7 +68,8 @@ function show_details($mon_perso,$ma_div)
             <?php echo "<p class=\"infos\">".$mon_perso->nom().
             "<br/> pv: ".$mon_perso->pv()."/".$mon_perso->pvm().
             "<br/> atk: ".$mon_perso->atk().
-            "<br/> def: ".$mon_perso->def()."</p>" ; ?>
+            "<br/> def: ".$mon_perso->def().
+            "<br/> elmt: ".$mon_perso->type_elmt()."</p>" ; ?>
         </div>
     </div>
 </div>
@@ -99,7 +98,6 @@ if(!isset($_POST['play'])){
 
     if(!isset($_SESSION['persos_totaux']) ) {            
       /* mes persos sont déjà définis en objet dans l'intro (car stats obligatoire), donc on en refait pas des objets
-
         foreach($_SESSION["mes_persos"] as $key => $value){
            $mes_persos_o[$key] = new Perso($value,$liste_complete,0);   } */
         $mes_persos_o = $_SESSION["mes_persos"] ;
@@ -109,7 +107,7 @@ if(!isset($_POST['play'])){
             global $liste_complete_o;
             $persos_ennemis_o[$key] = new Perso($value,$liste_complete_o,1);  }
 
-        for($i=1; $i<=8; $i = $i+2){
+        for($i=1; $i<=8; $i = $i+2){ // persos_totaux 1 à 8 issu de 2 tableaux de 4 elmts
         /*  $persos_totaux[0][0][$i] = $mes_persos_o[$i];
             $persos_totaux[0][1][$i] = $persos_ennemis_o[$i]; 
 
@@ -150,7 +148,6 @@ else if($_POST['play'] == "Continuer"){
      ?>
 <input type="submit" name="play" value="Finir" />  
 <?php } ?>
-
 </form>
 
 <?php   // Fin du tournoi
@@ -160,7 +157,7 @@ if( isset($_POST['play']) && $_POST['play'] == "Finir"){
     $persos_totaux = combats_du_round(2, $_SESSION['persos_totaux']); // Round 2
 
     // L'index du gagnant doit quand même être [1], même s'il est tout seul, pas juste $persos[3]
-                        // Parce que la fonction retourne toujours un double tableau [$round][$index] !
+                    // Parce que la fonction combats_du_round() retourne toujours un double tableau [$round][$index] !
     echo "<br/> Le gagnant est : ".$persos_totaux[3][1]->nom()." dans le camp ".$persos_totaux[3][1]->camp();
     
     ?>
@@ -306,35 +303,81 @@ foreach($_SESSION['personnages'] as $key => $value){
 </main>
 
 
-<?php
+<?php   // 2 est la valeur choisi arbitrairement comme bonus pour le $value_of_fight
+
+function choice($elmt1,$elmt2,$elmtP2){
+    if($elmtP2 == $elmt1 OR $elmtP2 == $elmt2){
+        return 2;
+    }
+    else { return 0; }
+}
+
+function AvElem($elmtP1, $elmtP2){
+    switch($elmtP1){
+        case "feu" :
+            return choice("glace","tenebres",$elmtP2);
+            break;
+        case "glace" :
+            return choice("terre","lumiere",$elmtP2);
+            break;
+        case "foudre":
+            return choice("glace","physique"$elmtP2)
+            break;
+        case "terre":
+            return choice("foudre","feu",$elmtP2)
+            break;
+        case "vent":
+            return choice("feu","lumiere",$elmtP2)
+            break;
+        case "physique":
+            return choice("vent","terre",$elmtP2);
+            break;
+        case "tenebres":
+            return choice("physique","vent",$elmtP2);
+            break;
+        case "lumiere":
+            return choice("tenebres","foudre",$elmtP2);
+            break;
+    }
+}
 
 function combat($perso1,$perso2){
+
+    $bonus1sur2 = AvElem($perso1->type_elmt(),$perso2->type_elmt());
+    $bonus2sur1 = AvElem($perso2->type_elmt(),$perso1->type_elmt());
+    // On vérifie l'avantage des 2 côtés, cela revient à regarder les av et desav de l'un ou de l'autre.
+    // La fonction est 2 fois plus courte, et nécessite simplement 2 appels
+    // On regarde la quantité bonus apporté des 2 côtés, l'un valant 0 et l'autre peut être quelque chose.
+    $bonus = $bonus1sur2 - $bonus2sur1 ;
+
                                                                                            // Avant :  /4 ! Importance PV réhaussée!
     $value_of_fight = ($perso1->atk() - $perso2->atk()) + ($perso1->def() - $perso2->def()) + ($perso1->pv() - $perso2->pv()) / 3;
+    $value_of_fight += $bonus;
     echo "<br/>Value of Fight :".$value_of_fight;
-    //if($value_of_fight == 0){ // J'ai oublié le double égale! ALORS QUE LE IF EST USELESS ! 20m perdus
+    //if($value_of_fight == 0){ // J'ai oublié le double égale! ALORS QUE LE IF EST USELESS ! 30m perdus
     while($value_of_fight == 0){
         $value_of_fight = rand(-10,10);
     } //}
 
     if($value_of_fight > 0){
-        $value = $perso1->pv() - ($perso2->atk() - $perso1->def() ) *(1 + $perso2->atk() / $perso1->atk() );
+        $value = $perso1->pv() - ($perso2->atk() - $perso1->def()/2 ) ;
         $perso1->setPv($value);
         $perso2->setPv(0);
         return 0;
     }
     else if($value_of_fight < 0){
-        $value = $perso2->pv() - ($perso1->atk() - $perso2->def() ) *(1 + $perso1->atk() / $perso2->atk() );
+        $value = $perso2->pv() - ($perso1->atk() - $perso2->def() /2 );
         $perso2->setPv($value);
         $perso1->setPv(0);     
         return 1;
     }
 }
-                        // Obliger d'envoyer les persos, car variable GLOBAL, eh oui, c'est une fonction!
+                        // Obligé d'envoyer les persos, car variable GLOBAL, eh oui, c'est une fonction!
 function combats_du_round($round, $persos_totaux){
     $persos_totaux[$round + 1] = array(); // Au cas où, on vide l'array qu'on va remplir
 
-    $challengers = 8 / ($round+1); // <-- car $round commence à 0 
+                    // 8 car au round 0 y a 8 persos, mais count() automatise le tout
+    $challengers = count($persos_totaux[0]) / ($round+1); // <-- car $round commence à 0 
 
     for($i=1; $i<= $challengers ; $i += 2){
 
@@ -347,28 +390,27 @@ function combats_du_round($round, $persos_totaux){
         if($persos_totaux[$round][$i]->camp() != $persos_totaux[$round][$i+1]->camp() ){
             $camp = combat($persos_totaux[$round][$i],$persos_totaux[$round][$i+1]);
             $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][$i+$camp];     
-
+                                                            // Rappel, "+$camp" est fixe si c'est "0" ou "1" 
+                                                                // Donc si c'est nous (0) ou l'ennemi (1)
             $_SESSION['winSince'] = 2 - $round; // 2 - 0, puis 2-1 et sinon 2-2
-
-        }                                        // Rappel, "+$camp" est fixe si c'est "0" ou "1" 
-        else{                                // Donc si c'est nous (0) ou l'ennemi (1)
+        }                                      
+        else{                                
             $persos_totaux[$round+1][($i+1)/2] = $persos_totaux[$round][rand($i,$i+1)];
                                                     // Si même camp, choix random
 
                 // A changer plus tard, si "nous", on peut choisir?
                 // Ou par défaut celui avec le plus de PV? Sinon random?
+                // Ou le plus fort, avec $value_of_fight?
 
             $value = $persos_totaux[$round+1][($i+1)/2]->pv() + 5;
-            $persos_totaux[$round+1][($i+1)/2]->setPv($value) ;
-                // Récupération de PV car pas de combat.
+            $persos_totaux[$round+1][($i+1)/2]->setPv($value) ; // ->setPv($this->pv()+5)
+                // Récupération de 5 PV car pas de combat.
         }
     }
     $_SESSION['persos_totaux'] = $persos_totaux; // Re-enregistré 
 
     return $persos_totaux; // Comme ça on utilise $persos_totaux dehors si on veut
 }
-
-    // Avant d'utiliser combats_du_round() on avait 415 lignes
 ?>
 
 </body>
