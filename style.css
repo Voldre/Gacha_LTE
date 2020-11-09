@@ -1,5 +1,6 @@
 .container {
     display: inline-block;
+    /* margin-right */
 }
 
 #hover-content {
@@ -18,6 +19,11 @@
     -o-transition: .5s;
     -ms-transition: .5s;
     transition: .5s;
+}
+
+#transition-hover {
+    /* min-width: 115px;
+    max-width: 135px;*/
 }
 
 #transition-hover:hover #transition-hover-content {
@@ -46,7 +52,7 @@ p.infos_menu {
     color: black;
     font-size: 14px;
     position: relative;
-    left: 105px;
+    left: 115px;
     bottom: -10px;
 }
 

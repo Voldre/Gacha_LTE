@@ -134,7 +134,7 @@ for($i=1; $i<= $invoc; $i++){
 
             if($_SESSION['argent'] < $requis){
                 echo "<p>Vous n'avez pas assez d'argent!<br/>";
-                echo "<p>En votre possession : $_SESSION['argent'], requis : $requis </p>";
+                echo "<p>En votre possession : ".$_SESSION['argent'].", requis : $requis </p>";
                 $invoc = 0;
             }
             else{   $_SESSION['argent'] -= $requis; } // On débite l'argent
@@ -147,9 +147,10 @@ for($i=1; $i<= $invoc; $i++){
 
 
 
-function affiche_liste_persos() {
+function affiche_liste_persos($threeStars, $doublons) {
 
     //print_r($_SESSION['personnages']);
+    $list_tempo = array(); // on déclare la liste qui contiendra les noms des persos déjà possédés
 
     foreach($_SESSION['personnages'] as $key => $value){ 
         ?>
@@ -161,16 +162,25 @@ function affiche_liste_persos() {
         <img src=<?= $_SESSION['personnages'][$key]->nom().".png" ?> id="drag1" width="70" height="70" /><!-- draggable="true" ondragstart="drag(event)" -->
         <?php // $characterx = "character:".$i; ?>
         <select name=<?= $key ?>>
-                    <!-- substr(0,-4) pour retirer ".png" de value -->
-            <option value="0"></option>
-            <option value="1">Retirer</option>
+
+            <?php       $nom = $_SESSION['personnages'][$key]->nom();
+            if( ($threeStars && $_SESSION['personnages'][$key]->stars() == 3) ||  ($doublons && in_array($nom,$list_tempo))  ){ ?>
+                <option value="1">Retirer</option> 
+                <option value="0"></option> <?php }
+            else { ?>
+                <option value="0"></option>
+                <option value="1">Retirer</option> <?php   } ?>
+
         </select>      </div>   
         <div id="transition-hover-content" >
-            <?php echo "<p class=\"infos_menu\">".$_SESSION['personnages'][$key]->nom().
+            <?php echo "<p class=\"infos_menu\">".$nom. // $_SESSION['personnages'][$key]->nom().
             "<br/> pv: ".$_SESSION['personnages'][$key]->pv()."/".$_SESSION['personnages'][$key]->pvm().
             "<br/> atk: ".$_SESSION['personnages'][$key]->atk().
             "<br/> def: ".$_SESSION['personnages'][$key]->def().
-            "<br/> elmt: ".$_SESSION['personnages'][$key]->type_elmt()."</p>" ; // Pas oublier l'elmt ?>
+            "<br/> elmt: ".$_SESSION['personnages'][$key]->type_elmt()."</p>" ; // Pas oublier l'elmt
+
+                $list_tempo[] = $nom;   // On ajoute le personnage actuel dans la liste, au cas-où futur "doublon"
+            ?>
         </div>
     </div>
 </div> 
@@ -178,21 +188,40 @@ function affiche_liste_persos() {
     }
 }
 
-    if(isset($_GET['free'])){
+    if(isset($_GET['free']) || isset($_POST['free'])){
         ?>
         <form action="Intro.php" method="POST"> 
+
+        <input type="hidden" name="free"/> <!-- On le remet pour re-rentrer dans le isset() qui est ici -->
+
+        <input type="submit" name="select3stars" value="Pré-selectionner tous les persos 3 étoiles"/>
+        <input type="submit" name="selectdoublons" value="Pré-selectionner tous les persos doublons"/>
+        </form>
+
+        <form action="Intro.php" method="POST"> <!-- Je le ferme et le rouvre, parce que sinon même après suppression on retourne dans le isset(free)
+                                Ce qui n'est pas intéressant, car si on libère les persos, on veut retourner sur le menu et pas revoir la liste. -->
+
+        <br/> <!-- On évite de mettre les persos à côté des boutons -->
         <?php
-        affiche_liste_persos();
-        ?>  <br/><br/>
+
+        if(isset($_POST['select3stars'])){
+            $threeStars = true;
+        } else { $threeStars = false;}
+        if(isset($_POST['selectdoublons'])){
+            $doublons = true;
+        } else { $doublons = false;}
+        affiche_liste_persos($threeStars, $doublons); ?>
+        <br/><br/>
         <div  style="text-align : center;">
         <input type="submit" name="leave"  style="text-align : center;"
         value="Relacher les personnages sélectionnés"/>
+
         <br/>
         </form>
         <?php
     }
 
-    if(isset($_POST['leave'])){
+    if(isset($_POST['leave']) && $_POST['leave'] == "Relacher les personnages sélectionnés"){
         global $liste_no_o_5_stars;
         global $liste_no_o_4_stars;
         $prix_delete = 0;
@@ -227,7 +256,11 @@ function affiche_liste_persos() {
         }
                 // On va jusqu'à 100 pour être large, ce n'est pas rigoureux mais pas grave
                 // Methode propre : Aller voir la valeur la plus élevée en key dans $_SESSION['personnages']
-        for($i = $index+1; $i <= 100 ; $i++){
+
+                // Ne pas mettre $index+1 dans $i =, car on fait déjà $index++ à la fin de la boucle for!
+                                // c'est ce "+1" qui duplicait le personnage vendu! Pourquoi? Parce qu'il gardait en mémoire le $index retiré.
+                                        // Si 2 persos supprimés, il en garde 1, pareil si 5 persos supprimés.
+        for($i = $index; $i <= 100 ; $i++){
             unset($_SESSION['personnages'][$i]); 
         }       // On unset() tous les personnages ayant un index supérieur au dernier perso, jusqu'à avoir le nombre actuel de perso
 
