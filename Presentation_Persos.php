@@ -27,6 +27,8 @@ try {
 
 ?>
 
+<iframe style="float: right; margin-right: 7px;" width=495 src="Avantage Elementaires.png"></iframe>
+
  <audio autoplay controls loop  style="display: none;">
   <source src="Valkyrie_Anatomia.mp3" type="audio/mpeg">
   </audio>

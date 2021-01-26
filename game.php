@@ -89,7 +89,8 @@ require("header.php");
 if(!isset($_POST['play'])){    
     $mes_persos_o = array();
     $persos_ennemis_o = array();
-
+    
+    echo "<p>Première manche :</p>";
     /*
     echo "persos :<br/>";
     print_r($_SESSION['mes_persos']);
@@ -132,19 +133,18 @@ if(!isset($_POST['play'])){
             // A partir du commencement du Tournoi !
 
 else if($_POST['play'] == "Commencer"){
-
+    echo "<p>Deuxième manche :</p>";
     $persos_totaux = combats_du_round(0, $_SESSION['persos_totaux']); // Round 0
 
-    echo "<br/>Deuxième manche : <br/>";
+    
      ?>
 <input type="submit" name="play" value="Continuer" />  
 <?php } 
 
 else if($_POST['play'] == "Continuer"){
-   
+    echo "<p>Troisième manche </p>";
     $persos_totaux = combats_du_round(1, $_SESSION['persos_totaux']); // Round 1
-
-    echo "<br/>Troisième manche : <br/>";
+    
      ?>
 <input type="submit" name="play" value="Finir" />  
 <?php } ?>
@@ -158,7 +158,7 @@ if( isset($_POST['play']) && $_POST['play'] == "Finir"){
 
     // L'index du gagnant doit quand même être [1], même s'il est tout seul, pas juste $persos[3]
                     // Parce que la fonction combats_du_round() retourne toujours un double tableau [$round][$index] !
-    echo "<br/> Le gagnant est : ".$persos_totaux[3][1]->nom()." dans le camp ".$persos_totaux[3][1]->camp();
+    echo "<p>Le gagnant est : ".$persos_totaux[3][1]->nom()." dans le camp ".$persos_totaux[3][1]->camp()."</p>";
     
     ?>
     <form action="index.php" method="post">
@@ -321,13 +321,13 @@ function AvElem($elmtP1, $elmtP2){
             return choice("terre","lumiere",$elmtP2);
             break;
         case "foudre":
-            return choice("glace","physique"$elmtP2)
+            return choice("glace","physique",$elmtP2);
             break;
         case "terre":
-            return choice("foudre","feu",$elmtP2)
+            return choice("foudre","feu",$elmtP2);
             break;
         case "vent":
-            return choice("feu","lumiere",$elmtP2)
+            return choice("feu","lumiere",$elmtP2);
             break;
         case "physique":
             return choice("vent","terre",$elmtP2);
@@ -353,7 +353,7 @@ function combat($perso1,$perso2){
                                                                                            // Avant :  /4 ! Importance PV réhaussée!
     $value_of_fight = ($perso1->atk() - $perso2->atk()) + ($perso1->def() - $perso2->def()) + ($perso1->pv() - $perso2->pv()) / 3;
     $value_of_fight += $bonus;
-    echo "<br/>Value of Fight :".$value_of_fight;
+    // echo "<br/>Value of Fight :".$value_of_fight;
     //if($value_of_fight == 0){ // J'ai oublié le double égale! ALORS QUE LE IF EST USELESS ! 30m perdus
     while($value_of_fight == 0){
         $value_of_fight = rand(-10,10);

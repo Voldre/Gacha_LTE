@@ -92,4 +92,19 @@ Ajout dans SQL des Cartes_Personnages!
 
 */
 
+        // Définir le nb de 5 étoiles possédés pour adapter la difficulté
+
+$nb_perso_5_stars = 0;
+
+if(isset($_SESSION['personnages'])){
+    foreach($_SESSION['personnages'] as $key => $value){
+        if(in_array($_SESSION['personnages'][$key]->nom(),$liste_no_o_5_stars)){
+            $nb_perso_5_stars++;
+        }
+    }
+}
+$_SESSION['nb_5_s'] = $nb_perso_5_stars;
+
+
+
 //print_r($liste_complete_o);

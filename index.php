@@ -67,9 +67,9 @@ if(isset($_POST['confirm'])){
             } */
         }
 
-    echo "<br/>";
+        //echo "<br/>";
     $liste_occurrences = array_count_values($_POST);
-    print_r($liste_occurrences);
+        //print_r($liste_occurrences);
     foreach($liste_occurrences as $label => $attribut){
         if($label != "0" && $attribut > 1){ // Supérieure (stricte) à une occurrence
             echo "<p>Problème! Plusieurs personnages se trouvent à la même place!</p>";
@@ -240,12 +240,19 @@ else if( !isset($_SESSION['characters']) ){
     for($i = 1 ; $i <= 4 ; $i++)
     {         
         // **** PROBA DES ENNEMIS D'ÊTRE 4* ou 5* ! ****
+
+
+        //echo "<p>Test ici : ".$_SESSION['nb_5_s']."</p>";
+
          $drop = rand(1,100);
-         if($drop <= 4 ){   // A rendre dynamique selon le niveau du joueur (selon son avancement)
+         $critere = $_SESSION['nb_5_s'] * 10;
+        if($critere > 50){ $critere = 50;}
+         
+         if($drop <= $critere+1 ){   // A rendre dynamique selon le niveau du joueur (selon son avancement)
              global $liste_no_o_5_stars;
              $liste_use = $liste_no_o_5_stars;
          }
-         else if($drop <= 40 ){
+         else if($drop <= $critere*1.1 + 15 ){
             global $liste_no_o_4_stars;
             $liste_use = $liste_no_o_4_stars;
         }
