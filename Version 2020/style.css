@@ -1,0 +1,219 @@
+.container {
+    display: inline-block;
+    /* margin-right */
+}
+
+#hover-content {
+    display: none;
+}
+
+#hover-me:hover #hover-content {
+    display: block;
+}
+
+#transition-hover-content {
+    display: inline;
+    opacity: 0;
+    -webkit-transition: .5s;
+    -moz-transition: .5s;
+    -o-transition: .5s;
+    -ms-transition: .5s;
+    transition: .5s;
+}
+
+#transition-hover {
+    /* min-width: 115px;
+    max-width: 135px;*/
+}
+
+#transition-hover:hover #transition-hover-content {
+    display: inline;
+    opacity: 1;
+}
+
+.infos,
+.infos_menu {
+    border: grey 2px solid;
+    background-color: lightgrey;
+    margin: -5px;
+    /* Permet d'aligner d'avantages de personnages! */
+    float: left;
+}
+
+p.infos {
+    color: black;
+    font-size: 14px;
+    position: relative;
+    left: 65px;
+    bottom: 65px;
+}
+
+p.infos_menu {
+    color: black;
+    font-size: 14px;
+    position: relative;
+    left: 115px;
+    bottom: -10px;
+}
+
+
+/* En déclarant cela dans le "*", j'ai involontairement déclaré une animation dans CHAQUE DIV!
+    Autrement dit, chaque div bougeait indépendamment!*/
+
+body {
+    /*background-color: rgb(202, 202, 202);*/
+    background-image: url("BlueSpace.png");
+    background-position: top left;
+    animation: mymove 50s infinite;
+}
+
+@keyframes mymove {
+    100% {
+        background-position: bottom right;
+    }
+}
+
+a {
+    line-height: 140%;
+    font-size: 18px;
+}
+
+.red {
+    color: red;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 200px;
+    list-style: none;
+    padding: 0;
+}
+
+.round .spacer {
+    flex-grow: 1;
+}
+
+.round .spacer:first-child,
+.round .spacer:last-child {
+    flex-grow: .5;
+}
+
+.round .game-spacer {
+    flex-grow: 1;
+}
+
+.round .demi-spacer:first-child,
+.round .demi-spacer:last-child {
+    flex-grow: .5;
+}
+
+.round .game-demi-spacer {
+    flex-grow: 1;
+}
+
+li.game {
+    padding-left: 20px;
+}
+
+li.game.winner {
+    font-weight: bold;
+}
+
+li.game span {
+    /*float: right;*/
+    margin-right: 5px;
+}
+
+li.game-top {
+    border-bottom: 3px solid #aaa;
+}
+
+li.game-spacer {
+    border-right: 3px solid #aaa;
+    min-height: 40px;
+}
+
+li.game-bottom {
+    border-top: 3px solid #aaa;
+}
+
+#div1,
+#div2 {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    /*margin: 2px;*/
+    padding: 5px;
+    border: 1px solid grey;
+}
+
+#div3 {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    /*margin: 2px;*/
+    padding: 5px;
+    border: 4px ridge rgba(186, 53, 0, 0.775);
+}
+
+img {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: center;
+    /*border: 1px solid black;*/
+}
+
+.menu {
+    margin-left: 15%;
+    margin-right: 50px;
+    width: 315px;
+    float: right;
+    border: 4px darkseagreen solid;
+    background-color: rgba(0, 0, 54, 0.766);
+    color: rgb(224, 223, 223);
+}
+
+.summon {
+    border: 4px ridge rgba(160, 96, 0, 0.823);
+    margin-left: 100px;
+    width: 650px;
+    text-align: center;
+    vertical-align: center;
+    background-image: url("Circle2.png");
+    background-color: rgba(15, 0, 64, 0.721);
+    background-size: cover;
+    /* auto = taille de base */
+}
+
+.collapse {
+    display: collapse;
+}
+
+p,
+h4,
+h3,
+h1 {
+    color: rgb(226, 225, 225);
+}
+
+.main_button {
+    color: darkred;
+    float: right;
+}
+
+.summon img {
+    width: 140px;
+    height: 140px;
+    padding: 5px;
+    text-align: center;
+    vertical-align: center;
+    /*border: 1px solid black;*/
+}

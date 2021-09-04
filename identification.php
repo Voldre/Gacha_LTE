@@ -38,14 +38,12 @@ ne peut plus appeler une/des colonnes avec le nom Cartes_des_Joueurs,
 */
 
 require("Perso.php"); // Classe en tout tout premier
-
 session_start(); // Avant tout code HTML mais après les classes
-
 require("header.php");
 
     // Connexion
 
-if(isset($_POST['Ma_Connexion'])){
+if(isset($_GET['Ma_Connexion'])){
     ?>
     <h4>Vous pouvez vous connecter en remplissant le formulaire ci-dessous.</h4>
     <form method="post">
@@ -74,48 +72,46 @@ if(isset($_POST['Connexion'])){   // Login est une clé unique car j'empêche 2 
         $_SESSION['id'] = $donnees['ID'];
         $_SESSION['login'] = $donnees['login'];
 
-        // On reprend la donnée "argent" de la req. $requete
+        // On reprend la donnée "argent" de la requête "$requete"
 
             if($donnees['argent'] != -100){ // CAR -100 CORRESPOND A LA VALEUR DE CREATION, DONC 0 PERSO, jamais joué
                 $_SESSION['argent'] = $donnees['argent'];
-                /*
-                $req_nb = $db->prepare('SELECT COUNT(idJoueur) AS nb_persos FROM Cartes_des_Joueurs WHERE idJoueur = ?');
-                $req_nb->execute(array($_SESSION['id']));
-                    $data = $req_nb->fetch(); */
 
-                //function PersosFromSQL($id){
+                $reponse = $db->prepare('SELECT CdJ.*, CP.*
+                                        FROM Cartes_des_Joueurs AS CdJ , Cartes_Personnages AS CP
+                                        WHERE idJoueur = ?  AND CdJ.Nom_P = CP.NOM');
+                        $reponse->execute(array($_SESSION['id']));
 
-                    $reponse = $db->prepare('SELECT CdJ.*, CP.*
-                                            FROM Cartes_des_Joueurs AS CdJ , Cartes_Personnages AS CP
-                                            WHERE idJoueur = ?  AND CdJ.Nom_P = CP.NOM');
-                            $reponse->execute(array($_SESSION['id']));
+                $_SESSION['personnages'] = array(); // Pour pas rajouter ceux d'avant
 
-                    $_SESSION['personnages'] = array(); // Pour pas rajouter ceux d'avant
+                while($persos_SQL = $reponse->fetch() ){
+                                                    //nom, liste, camp, stars
+                    $_SESSION['personnages'][] = new Perso(0, 0, 0, $persos_SQL);     
+                                    // [] obligatoire pour dire qu'on AJOUTE UN ELEMENT A LA LISTE ! ! !  :)
+                    // Le 5e attribut vient rendre les 4 premiers inutiles, sauf camp, donc 0.
 
-                    while($persos_SQL = $reponse->fetch() ){
-                                                        //nom, liste, camp, stars
-                        $_SESSION['personnages'][] = new Perso(0, 0, 0, 0, $persos_SQL);     
-                                        // [] obligatoire pour dire qu'on AJOUTE UN ELEMENT A LA LISTE ! ! !  :)
-                        // Le 5e attribut vient rendre les 4 premiers inutiles, sauf camp, donc 0.
+                    //print_r($persos_SQL);
+                }
+                $reponse->closeCursor();
 
-                        //print_r($persos_SQL);
-                    }
-                    $reponse->closeCursor();
-                //}
-                //PersosFromSQL($_SESSION['id']);
-
+                echo '<meta http-equiv="Refresh" content="2; url=index.php" />'; 
+    
             }
             else{   // SI le joueur débute (-100 argent), donc 0 personnage, alors SUMMON DU DEBUT ! :)
-                header("Location: Intro.php");
+                
+                echo '<script language="Javascript">document.location.replace("Intro.php");</script>';
+                //header("Location: Intro.php");
             }            
 
     }
     else{
         echo "<p class=\"red\">Mauvais identifiant ou mot de passe !</p>";
         ?> 
-        <form action="identification.php" method="post"> 
+        <form action="identification.php" method="get"> 
         <input type="submit" name="Ma_Connexion" value="Recommencer la connexion"/>
-        </form>   
+        <input type="submit" name="Inscription" value="M'inscrire sur le site"/>
+    
+    </form>   
         <?php
     }   
     $requete->closeCursor();
@@ -129,10 +125,14 @@ if(isset($_POST['Deconnexion'])){
     session_destroy();
 
     // Suppression des cookies de connexion automatique
-    setcookie('login', '');
-    setcookie('pass_hache', '');
+    echo "<script>";  // En JS car en PHP le header est déjà défini
+    echo "document.cookie=\"login=\";";
+    echo "document.cookie=\"pass_hache=\";";
+    echo "</script>";
+    //setcookie('login', '');
+    //setcookie('pass_hache', '');
 
-    header("Location: index.php");
+    echo '<script language="Javascript">document.location.replace("index.php");</script>';
 }
 
     // Sauvegarde
@@ -168,7 +168,7 @@ if(isset($_POST['Sauvegarder'])){
 
     // Inscription
 
-if(isset($_POST['Inscription'])){
+if(isset($_GET['Inscription'])){
     ?>
     <h4>Vous pouvez vous inscrire en remplissant le formulaire ci-dessous.</h4>
     <p class="red">Attention, votre mot de passe doit faire plus de 5 caractères.</p>
@@ -217,12 +217,11 @@ if(isset($_POST['subscribe']) ){
         <p>Votre inscription a bien été réalisée!</p>"        
         <?php
     }    ?> 
-    <form action="identification.php" method="post"> 
+    <form action="identification.php" method="get"> 
     <input type="submit" name="Ma_Connexion" value="Connexion"/>
     </form>   
 <?php
 }
-
 ?>
     <br/>
 <form action="index.php" method="post">

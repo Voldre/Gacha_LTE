@@ -27,13 +27,14 @@ $liste_no_o_4_stars = array("Velrod","Nerio","Brahms","Chrome","Dark_Silarius","
     // Création de personnages en requête SQL
 
 // Objects lists
+
 function liste_objects($stars,$db){
 
     $reponse = $db->prepare('SELECT * FROM Cartes_Personnages WHERE STARS = ?');
     $reponse->execute( array($stars));
 
     while( $data = $reponse->fetch()){
-        $liste_output[$data['NOM']] = $data; // [] permet d'ajouter un nouvel élément
+        $liste_output[$data['NOM']] = $data;
     }
     $reponse->closeCursor();
 
@@ -75,7 +76,6 @@ $liste_complete_o = $list + $liste_4_stars + $liste_5_stars;
 
 
 /* Voici les seules lignes de codes existantes pour fabriquer et remplir la table 'Cartes_Personnages'
-
 foreach($list as $key => $value){
     $requete = $db ->prepare('INSERT INTO Cartes_Personnages(NOM, PVM, ATK, DEF, ELMT, STARS) VALUES (?, ?, ?, ?, ?, ?) ');  
     $requete->execute(array($key,16, 8+$list[$key][0], 8+$list[$key][1], $list[$key][2], 3) );
@@ -89,22 +89,19 @@ foreach($liste_4_stars as $key => $value){
 }
 
 Ajout dans SQL des Cartes_Personnages!
-
 */
 
-        // Définir le nb de 5 étoiles possédés pour adapter la difficulté
+// Définir le nombre de 5 étoiles possédés pour adapter la difficulté
 
-$nb_perso_5_stars = 0;
+$_SESSION['nb_5_stars'] = 0;
 
 if(isset($_SESSION['personnages'])){
     foreach($_SESSION['personnages'] as $key => $value){
-        if(in_array($_SESSION['personnages'][$key]->nom(),$liste_no_o_5_stars)){
-            $nb_perso_5_stars++;
+        if($_SESSION['personnages'][$key]->stars() == 5){
+            $_SESSION['nb_5_stars']++;
         }
     }
 }
-$_SESSION['nb_5_s'] = $nb_perso_5_stars;
-
 
 
 //print_r($liste_complete_o);

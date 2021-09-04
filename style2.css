@@ -9,7 +9,7 @@ https://developer.mozilla.org/fr/docs/Web/CSS/justify-content
 
 body {
     /*background-color: rgb(202, 202, 202);*/
-    background-image: url("BlueSpace.png");
+    background-image: url("_BlueSpace.png");
     background-position: top left;
     animation: mymove 50s infinite;
 }
@@ -89,21 +89,107 @@ h4 {
 
 .container {
     display: inline-block;
-    width: 1125px;
+    width: 1120px;
     /* border: solid white 2px; */
-    margin-left: 20px;
-    padding-left: 50px;
+    margin-left: 10px;
+    padding-left: 20px;
     justify-content: space-around;
 }
 
 .container_creation {
     background-color: rgba(15, 3, 23, 0.919);
-    background-image: url("Circle2.png");
-    background-size: 900px 1600px;
+    background-image: url("_Circle2.png");
+    background-size: 125%;
     display: inline-block;
-    width: 725px;
+    width: 93%;
     border: ridge darkblue 3px;
-    margin-left: 20px;
-    padding-left: 50px;
+    margin-left: 15px;
+    padding-left: 25px;
     justify-content: space-around;
+}
+
+
+/* The switch - the box around the slider */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    margin: 10px;
+    padding: 5px;
+}
+
+
+/* Hide default HTML checkbox */
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+
+/* The slider */
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+.slider.round {
+    border-radius: 50px;
+    font-size: 20px;
+    color: black;
+    text-align: center;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+@media only screen and (max-width:600px) {
+    /* For mobile phones: */
+    img,
+    .div_presentation {
+        width: 80px;
+        height: 80px;
+    }
+    p.infos_presentation {
+        font-size: 12px;
+        padding: 8px;
+        top: -9px;
+    }
+    .container {
+        padding-left: 10px;
+        width: 560px;
+    }
+    .switch {
+        width: 60px;
+        margin: 7px;
+        padding: 5px;
+    }
+    .slider.round {
+        font-size: 14px;
+    }
+    h2,
+    h3 {
+        font-size: 15px;
+    }
+    .container {
+        margin-left: -10px;
+    }
+    .no_mobile {
+        display: none;
+    }
 }

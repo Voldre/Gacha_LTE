@@ -1,0 +1,109 @@
+/* 
+Flex content :
+https://developer.mozilla.org/fr/docs/Web/CSS/justify-content 
+
+    background-size: 900px 1600px;
+    ou              50%  auto;
+
+*/
+
+body {
+    /*background-color: rgb(202, 202, 202);*/
+    background-image: url("BlueSpace.png");
+    background-position: top left;
+    animation: mymove 50s infinite;
+}
+
+@keyframes mymove {
+    100% {
+        background-position: bottom right;
+    }
+}
+
+.menu {
+    margin-left: 15%;
+    margin-right: 50px;
+    width: 315px;
+    float: right;
+    border: 4px darkseagreen solid;
+    background-color: rgba(0, 0, 54, 0.766);
+    color: rgb(224, 223, 223);
+}
+
+p.infos_presentation {
+    position: relative;
+    bottom: 12px;
+    left: -5px;
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+.infos_presentation {
+    color: lightgray;
+    font-size: 18px;
+    border: grey 2px solid;
+    background-color: rgba(0, 0, 54, 0.766);
+    /* Permet d'espacer les personnages entre eux (en dessous)*/
+    margin-right: 75px;
+}
+
+.div_presentation {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    /*margin: 2px;*/
+    border: 4px ridge rgba(206, 65, 9, 0.775);
+}
+
+img {
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    vertical-align: center;
+    /*border: 1px solid black;*/
+}
+
+h3,
+h5,
+p {
+    color: rgb(226, 225, 225);
+}
+
+.gold_red {
+    color: rgb(214, 85, 10);
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+h4 {
+    color: rgb(226, 225, 225);
+}
+
+.new_hero {
+    color: goldenrod;
+    font-weight: bold;
+}
+
+.container {
+    display: inline-block;
+    width: 1125px;
+    /* border: solid white 2px; */
+    margin-left: 20px;
+    padding-left: 50px;
+    justify-content: space-around;
+}
+
+.container_creation {
+    background-color: rgba(15, 3, 23, 0.919);
+    background-image: url("Circle2.png");
+    background-size: 900px 1600px;
+    display: inline-block;
+    width: 725px;
+    border: ridge darkblue 3px;
+    margin-left: 20px;
+    padding-left: 50px;
+    justify-content: space-around;
+}

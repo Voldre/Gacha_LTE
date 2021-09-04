@@ -37,7 +37,7 @@ class Perso
   const PERSONNAGE_TUE = 2; // Constante renvoyée par la méthode `frapper` si on a tué le personnage en le frappant.
   const PERSONNAGE_FRAPPE = 3; // Constante renvoyée par la méthode `frapper` si on a bien frappé le personnage.
 
-  public function __construct($heros,$list,$camp, $stars =3, $list_SQL = "") // Pas obligé de préciser le nombre d'étoiles
+  public function __construct($heros,$list,$camp, $list_SQL = "") // Pas obligé de préciser le nombre d'étoiles
   {                                                        // Pas obliger de passer par une requête SQL
     //$this->hydrate($heros);
 
@@ -59,6 +59,7 @@ class Perso
       $this->setType_elmt($list[$heros]["ELMT"]);        // Direction Listes_Persos.php pour plus d'info!
       $this->setPvm(10 + $this->stars * 2 + rand(-2,2) );                 // Section : Objects lists
     }
+    
       // Commun peu importe la méthode
     //$this->setNiveaux(1);
     //$this->setExperiences(0);
@@ -180,17 +181,7 @@ public function __toString()
   {
     $this->type_elmt = (string) $value;
   }
-/*
-  public function setTimeWait($time)
-  {
-    $this->timeWait = (int) $time;
-  }
-
-  public function setCoups_envoyees($value)
-  {
-    $this->coups_envoyees = (int) $value;
-  }
-*/
+  
   public function setNiveaux($value)
   {
     $this->niveaux = (int) $value;

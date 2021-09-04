@@ -5,36 +5,27 @@
 <meta charset="utf-8" />
 
 <link rel="stylesheet" href="style2.css"/>
+<meta name="viewport" content="width=device-width, minimum-scale=0.7"/>
+<meta name="viewport" content="width=device-width, maximum-scale=3.2"/>
 
 </head>
 
 <body>
 <?php   
 
+require("Perso.php"); // Classe en tout tout premier
+include("../Database.php");
 session_start();
 
 /*
-
 Mettre à jour les fichiers de force (CSS qui refuse de se mettre à jour) : 
     Ctrl + F5 force le navigateur à supprimer la mémoire cache, donc reset le CSS
-
  */
 
+ require("Liste_Persos.php");
 
+ $password = "V&Z";
 
-try {
-    $db = new PDO('mysql:host=localhost;', 'root', '', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));     
-
-    $sql = file_get_contents('Gacha_BDD.sql');
-
-    $qr = $db->exec($sql); // CREATE DB IF NOT EXIST
-    }catch (Exception $e)
-    {
-    die('Erreur : ' . $e->getMessage());
-    echo $e->getMessage();
-    echo "<p>Nous allons importer la Base de Données existante...</p>";
-    }  
-         require("Liste_Persos.php");
 ?>
 
  <audio autoplay controls loop  style="display: none;">
@@ -91,20 +82,30 @@ if(isset( $_POST['creation'])){
 
     $_POST['nom'] = htmlspecialchars($_POST['nom']);
     
-    $requete_nb = $db->prepare('SELECT COUNT(*) AS nb FROM Cartes_Personnages WHERE Nom = ?');
-    $requete_nb->execute( array( $_POST['nom']) );
-    $data = $requete_nb->fetch();
-    $requete_nb->closeCursor();
+    global $liste_complete_o; // On va vérifier si le nom est pas déjà dans la liste
 
-    if($_POST['nom'] == ""){
+    if($_POST['nom'] == "" || strlen($_POST['nom']) < 3 ){
         echo "<p>Erreur : Vous n'avez pas saisi de nom!</p>";
     }
-    else if($data['nb'] != 0){
+    else if(array_key_exists ($_POST['nom'],$liste_complete_o)){
+        $data = $liste_complete_o[$_POST['nom']];
     ?>
         <p>Erreur ! Ce personnage existe déjà!</p>
-        <p>Vous pouvez l'effacer pour le recréer en appuyant... 
+
+        <div class="div_presentation"> 
+        <img src=<?= $data['NOM'].".png" ?> alt="Le fichier '<?= $data['NOM'].".png" ?>' est introuvable" />
+        </div>
+            <p class="infos_presentation"><span style="text-align  center;"> <?= $data['NOM'] ?> </span>
+                <br/> Points de vie :  <?= $data['PVM'] ?>
+                <br/> Attaque : <?=  $data['ATK'] ?>
+                <br/> Défense : <?= $data['DEF'] ?>
+                <br/> Element : <?= $data['ELMT'] ?>   </p> 
+
+
+        <p>Vous pouvez l'effacer pour le recréer en saisissant le bon mot de passe (indice : Le couple) :
             <form method="post">
-                <input type="submit" name="delete" value="ici"/>
+                <input type="submit" name="delete" value="valider"/>
+                <input type="password" name="delete" />
                 <input type="hidden" name="nom_perso" value= <?= $_POST['nom'] ?> />
         </form> </p>
     <?php
@@ -113,9 +114,9 @@ if(isset( $_POST['creation'])){
     ?>
         <h4>Voici la carte proposée pour votre personnage :</h4>
         <div class="div_presentation"> 
-        <img src=<?= $_POST['nom'].".png" ?> alt="Le nom saisi ne renvoi vers aucune image, rappel : format attendu .png" />
+        <img src=<?= $_POST['nom'].".png" ?> alt="Le fichier '<?= $_POST['nom'].".png" ?>' est introuvable" />
         </div>
-            <?php $stars = $_POST['stars']; // PERMET DE SIMPLIFIER L'ECRITURE ?>
+            <?php $stars = $_POST['stars']; // SIMPLIFIE L'ECRITURE ?>
             <p class="infos_presentation"><span style="text-align  center;"> <?= $_POST['nom'] ?> </span>
                 <br/> Points de vie :  <?= 10 + 2*$stars; ?>
                 <br/> Attaque : <?=  2 + 2*$_POST['atk'] + $stars*2; ?>
@@ -126,10 +127,9 @@ if(isset( $_POST['creation'])){
 
         <h4> Confirmez-vous la création du personnage ? </h4>
         <form method="POST">
-            <select name="valide">
-                <option value="1">Oui</option>
-                <option value="0">Non</option>
-            </select>
+            <h4>Si oui, saisissez le bon mot de passe (indice : le couple) :
+            <input type="password" name="valide" /></h4>
+
             <input type="submit" value="valider"/>
         </form>
 
@@ -138,7 +138,7 @@ if(isset( $_POST['creation'])){
 }
         // Une fois le personnage créé :
 
-if(isset($_POST['valide']) && $_POST['valide'] == 1){
+if(isset($_POST['valide']) && $_POST['valide'] == $password){
 
     // Utilisation des données du personnage enregistré temporairement :
     $perso = $_SESSION['tempo'];
@@ -149,19 +149,14 @@ if(isset($_POST['valide']) && $_POST['valide'] == 1){
     $requete->execute( array($perso['nom'], 10 + 2*$perso['stars'], 2 + 2*$perso['atk'] + $perso['stars']*2,
                             2 + 2*$perso['def'] + $perso['stars']*2, $perso['elmt'], $perso['stars']) );
 
-    echo "<h3>Le personnage <span class=\"new_hero\"> $perso['nom'] </span> a bien été créé !</h3>";
-}
-else if(isset($_POST['valide'])){
-    echo "<p>Vous pouvez changer les paramètres en les réécrivants ci-dessus.</p>";
-    unset($_SESSION['tempo']);
-
+    echo "<h3>Le personnage <span class=\"new_hero\">". $perso['nom'] ."</span> a bien été créé !</h3>";
 }
 
-if( isset($_POST['delete']) ){
+if( isset($_POST['delete']) && $_POST['delete'] == $password){
     $requete = $db->prepare('DELETE FROM Cartes_Personnages WHERE Nom = ?');
     $requete->execute( array($_POST['nom_perso']));
     $requete->closeCursor();
-    echo "<p>Le personnage ".$_POST['nom_perso']." a été supprimé avec succès.</p>";
+    echo "<p>Le personnage <span class=\"new_hero\">".$_POST['nom_perso']."</span> a été supprimé avec succès.</p>";
 }
 ?>
 
@@ -174,17 +169,27 @@ if( isset($_POST['delete']) ){
 <input type="submit" value="Revoir la liste des personnages"/>
 </form>
 
-
+<div class="infos_presentation">
 <h4>Pour informations :</h4>
 <?php
 
-$requete = $db->query('SELECT elmt, COUNT(elmt) as nb_elmt FROM Cartes_Personnages GROUP BY ELMT');
+$requete = $db->query('SELECT elmt, stars, COUNT(elmt) as nb_elmt FROM Cartes_Personnages GROUP BY ELMT, STARS');
+
+$reponse = []; // On récupère la répartation des persos par élément dans un tableau
 
 while($data = $requete->fetch()){
-    echo "<p>Element :  ".$data['elmt']." - Quantité : ".$data['nb_elmt'].".</p>";
+    $reponse[$data['elmt']][$data['stars']] = $data['nb_elmt']; }
+
+foreach($reponse as $key => $value){
+    if(!isset($value[5])){$value[5] = 0;}
+    if(!isset($value[4])){$value[4] = 0;}
+    echo "<p>Element :  ".$key." - Personnages : ". array_sum($value)." - Répartition (3* / 4* / 5*) : $value[3] / $value[4] / $value[5] </p>";
 }
 $requete->closeCursor();
+
 ?>
+
+</div>
 
 </body>
 </html>
