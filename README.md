@@ -13,8 +13,7 @@ In this massive update, the game was deployed in a website : http://voldre.free.
 - Improvement of the fight (variable heal, additional damages depending on the success of the fight)
 - Add 5 new characters
 - Add a remember system to keep chosen characters for fight (for wins lot of time 👍)
-- Add a shortcut to select many characters at the same time during the sale
-- 
+- Add a shortcut to select many characters at the same time during the sale 
 
 ### Design :
 - Add a responsive design for mobile phones
