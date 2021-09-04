@@ -1,32 +1,28 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-
-<meta charset="utf-8" />
-
-<link rel="stylesheet" href="style2.css"/>
-<meta name="viewport" content="width=device-width, minimum-scale=0.7"/>
-<meta name="viewport" content="width=device-width, maximum-scale=3.2"/>
-
-</head>
-
-<body>
-<?php   
-
+<?php 
 require("Perso.php"); // Classe en tout tout premier
 include("../Database.php");
 session_start();
-
 /*
 Mettre à jour les fichiers de force (CSS qui refuse de se mettre à jour) : 
     Ctrl + F5 force le navigateur à supprimer la mémoire cache, donc reset le CSS
- */
+*/
 
- require("Liste_Persos.php");
+require("Liste_Persos.php");
 
- $password = "V&Z";
+$password = "V&Z";
 
 ?>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="style2.css"/>
+<meta name="viewport" content="width=device-width, minimum-scale=0.7"/>
+<meta name="viewport" content="width=device-width, maximum-scale=3.2"/>
+</head>
+
+<body>
 
  <audio autoplay controls loop  style="display: none;">
   <source src="Plus_que_Dechu.ogg" type="audio/ogg">
