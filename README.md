@@ -5,7 +5,7 @@ The game was made by Dubuc Valentin in 2020 and a massive update was done in 202
 
 In this massive update, the game was deployed in a website : http://voldre.free.fr/Gacha_LTE.
 
-##Details of the update :
+## Details of the Massive update 2021 :
 
 ### Gameplay : 
 - Add a system of drag & drop rather than a menu of options
